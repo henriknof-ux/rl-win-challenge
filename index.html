@@ -121,29 +121,6 @@
         <!-- LEFT COLUMN: Timer & Group Info -->
         <div class="lg:col-span-4 flex flex-col gap-6">
 
-            <!-- Main Goal Status Card -->
-            <div class="glass-panel rounded-3xl p-6 relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900/90 to-rose-950/30">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-bullseye"></i> Haupt-Ziel der Gruppe
-                    </span>
-                    <button onclick="openEditMainGoalModal()" class="text-xs text-slate-400 hover:text-white">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                </div>
-                <h2 id="mainGoalTitleDisplay" class="text-xl font-black text-white mb-2">Einfach zusammen durchhalten!</h2>
-                
-                <div class="mt-4">
-                    <div class="flex justify-between text-xs font-bold mb-1">
-                        <span class="text-slate-400">Team Gesamterfüllung</span>
-                        <span id="mainGoalPercentText" class="text-emerald-400 font-black">0%</span>
-                    </div>
-                    <div class="w-full h-4 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800">
-                        <div id="mainGoalProgressBar" class="h-full bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Countdown Timer Card -->
             <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
                 <div id="timerLockBadge" class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 bg-slate-800 text-slate-400 border border-slate-700">
@@ -203,7 +180,7 @@
                     </button>
                 </div>
 
-                <div id="usersList" class="space-y-2.5 max-h-[240px] overflow-y-auto pr-1">
+                <div id="usersList" class="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
                 </div>
             </div>
 
@@ -212,16 +189,31 @@
         <!-- RIGHT COLUMN: Active Challenges & Voting System -->
         <div class="lg:col-span-8 flex flex-col gap-6">
 
-            <!-- Banner / Action Header -->
-            <div class="glass-panel rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-extrabold text-white">Gemeinsame Aufgaben</h2>
-                    <p class="text-sm text-slate-400">Tragt zusammen Ergebnisse ein, um die Challenge zu rocken!</p>
+            <!-- Banner / Action Header & Overall Progress Bar -->
+            <div class="glass-panel rounded-3xl p-6 flex flex-col gap-4">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-white">Gemeinsame Aufgaben</h2>
+                        <p class="text-sm text-slate-400">Tragt zusammen Ergebnisse ein, um die Challenge zu rocken!</p>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button id="btnCreateChallenge" onclick="openChallengeModal()" class="w-full sm:w-auto py-3 px-5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-bold shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 transition active:scale-95">
+                            <i class="fa-solid fa-plus"></i> Neue Aufgabe
+                        </button>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <button id="btnCreateChallenge" onclick="openChallengeModal()" class="w-full sm:w-auto py-3 px-5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-bold shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 transition active:scale-95">
-                        <i class="fa-solid fa-plus"></i> Neue Aufgabe
-                    </button>
+
+                <!-- Overall Progress Bar Container -->
+                <div class="border-t border-slate-800/80 pt-4 mt-1">
+                    <div class="flex justify-between text-xs font-bold mb-1.5">
+                        <span class="text-slate-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-line text-emerald-400"></i> Gesamtfortschritt aller Aufgaben
+                        </span>
+                        <span id="mainGoalPercentText" class="text-emerald-400 font-black">0%</span>
+                    </div>
+                    <div class="w-full h-3.5 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                        <div id="mainGoalProgressBar" class="h-full bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
                 </div>
             </div>
 
@@ -230,13 +222,13 @@
             </div>
 
             <!-- VOTING SECTION: Proposed Challenges -->
-            <div class="glass-panel rounded-3xl p-6 mt-4">
+            <div class="glass-panel rounded-3xl p-6 mt-2">
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h3 class="text-lg font-bold text-white flex items-center gap-2">
                             <i class="fa-solid fa-check-to-slot text-amber-400"></i> Voting: Challenge-Ideen
                         </h3>
-                        <p class="text-xs text-slate-400">Stimmt für Vorschläge ab, die zur Haupt-Challenge hinzugefügt werden sollen.</p>
+                        <p class="text-xs text-slate-400">Stimmt für Vorschläge ab, die zu den aktiven Aufgaben hinzugefügt werden sollen.</p>
                     </div>
                     <button onclick="openVoteProposalModal()" class="py-2 px-3 bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold rounded-xl text-xs hover:bg-amber-500/30 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-lightbulb"></i> Idee Einreichen
@@ -386,28 +378,6 @@
         </div>
     </div>
 
-    <!-- MODAL: Edit Main Goal -->
-    <div id="mainGoalModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="glass-panel rounded-3xl w-full max-w-md p-6 relative border border-slate-700 shadow-2xl">
-            <button onclick="closeEditMainGoalModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <h3 class="text-lg font-bold text-white mb-1">Haupt-Ziel Anpassen</h3>
-            <p class="text-xs text-slate-400 mb-4">Setze das übergeordnete Motto für eure Gruppe.</p>
-
-            <form onsubmit="handleSaveMainGoal(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Haupt-Ziel Titel</label>
-                    <input type="text" id="mainGoalInput" required placeholder="z.B. Sommer-Workout Marathon 2026" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-rose-500">
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="closeEditMainGoalModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Abbrechen</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold transition">Speichern</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- MODAL: Progress Entry (Score Log) -->
     <div id="progressModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="glass-panel rounded-3xl w-full max-w-md p-6 relative border border-slate-700 shadow-2xl">
@@ -474,7 +444,6 @@
         let unsubscribeSnapshot = null;
 
         window.appData = {
-            mainGoalTitle: 'Einfach zusammen durchhalten!',
             users: [],
             challenges: [],
             proposals: [],
@@ -508,7 +477,6 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     window.appData = {
-                        mainGoalTitle: data.mainGoalTitle || 'Einfach zusammen durchhalten!',
                         users: data.users || [],
                         challenges: data.challenges || [],
                         proposals: data.proposals || [],
@@ -542,7 +510,6 @@
 
         async function seedInitialGroupDocument() {
             window.appData = {
-                mainGoalTitle: 'Einfach zusammen durchhalten!',
                 users: [
                     { id: 'u1', name: 'Max Power', color: '#f43f5e' },
                     { id: 'u2', name: 'Laura Fit', color: '#3b82f6' }
@@ -615,7 +582,6 @@
         };
 
         window.renderAll = function() {
-            document.getElementById('mainGoalTitleDisplay').textContent = window.appData.mainGoalTitle || 'Einfach zusammen durchhalten!';
             renderActiveUserDropdown();
             renderUsersList();
             renderChallenges();
@@ -679,7 +645,7 @@
                 const isActive = user.id === window.currentUserId;
                 const card = document.createElement('div');
                 card.className = `flex items-center justify-between p-2.5 rounded-2xl border transition ${
-                    isActive ? 'bg-slate-800/90 border-rose-500/50 shadow-md' : 'bg-slate-900/40 border-slate-800'
+                    isActive ? 'bg-slate-800/90 border-rose-500/50 shadow-md' : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'
                 }`;
 
                 card.innerHTML = `
@@ -690,13 +656,39 @@
                         <span class="text-sm font-semibold text-slate-200">${user.name}</span>
                         ${isActive ? '<span class="text-[10px] bg-rose-500/20 text-rose-300 font-bold px-2 py-0.5 rounded-full">Du</span>' : ''}
                     </div>
-                    <button onclick="switchActiveUser('${user.id}')" class="p-1.5 text-xs text-slate-400 hover:text-white">
-                        <i class="fa-solid fa-circle-check ${isActive ? 'text-rose-500' : 'text-slate-600'}"></i>
-                    </button>
+                    <div class="flex items-center gap-1">
+                        <button onclick="switchActiveUser('${user.id}')" title="Als mich wählen" class="p-1.5 text-xs text-slate-400 hover:text-white">
+                            <i class="fa-solid fa-circle-check ${isActive ? 'text-rose-500' : 'text-slate-600'}"></i>
+                        </button>
+                        <button onclick="removeUser('${user.id}')" title="Mitglied entfernen" class="p-1.5 text-xs text-slate-500 hover:text-rose-400 transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 `;
                 container.appendChild(card);
             });
         }
+
+        window.removeUser = function(userId) {
+            const user = (window.appData.users || []).find(u => u.id === userId);
+            if (!user) return;
+
+            if (confirm(`Möchtest du "${user.name}" wirklich aus der Gruppe entfernen?`)) {
+                window.appData.users = (window.appData.users || []).filter(u => u.id !== userId);
+
+                // Falls man sich selbst entfernt hat, wird der nächste aktive User gewählt
+                if (window.currentUserId === userId) {
+                    window.currentUserId = window.appData.users.length > 0 ? window.appData.users[0].id : null;
+                    if (window.currentUserId) {
+                        localStorage.setItem('winchallenge_my_user_id', window.currentUserId);
+                    } else {
+                        localStorage.removeItem('winchallenge_my_user_id');
+                    }
+                }
+
+                window.pushStateToFirestore();
+            }
+        };
 
         function renderChallenges() {
             const container = document.getElementById('challengesContainer');
@@ -1001,16 +993,6 @@
             closeVoteProposalModal();
         };
 
-        window.handleSaveMainGoal = function(e) {
-            e.preventDefault();
-            const title = document.getElementById('mainGoalInput').value.trim();
-            if (!title) return;
-
-            window.appData.mainGoalTitle = title;
-            window.pushStateToFirestore();
-            closeEditMainGoalModal();
-        };
-
         window.deleteChallenge = function(id) {
             window.appData.challenges = (window.appData.challenges || []).filter(c => c.id !== id);
             window.pushStateToFirestore();
@@ -1079,8 +1061,6 @@
         window.closeChallengeModal = function() { document.getElementById('challengeModal').classList.add('hidden'); };
         window.openVoteProposalModal = function() { document.getElementById('proposalModal').classList.remove('hidden'); };
         window.closeVoteProposalModal = function() { document.getElementById('proposalModal').classList.add('hidden'); };
-        window.openEditMainGoalModal = function() { document.getElementById('mainGoalModal').classList.remove('hidden'); };
-        window.closeEditMainGoalModal = function() { document.getElementById('mainGoalModal').classList.add('hidden'); };
 
         window.openProgressModal = function(chId) {
             if (!window.appData.timer || window.appData.timer.status !== 'RUNNING') return alert('Fortschritte können nur bei aktiver Challenge eingetragen werden!');
