@@ -96,8 +96,12 @@
                     <i class="fa-solid fa-layer-group text-amber-400 text-xs"></i>
                     <span class="text-xs text-slate-400 font-medium hidden sm:inline">Gruppe:</span>
                     <span id="currentGroupDisplay" class="text-sm font-bold text-rose-400">Hauptraum</span>
-                    <button onclick="openGroupModal()" class="ml-1 text-xs text-slate-400 hover:text-white" title="Gruppe wechseln / erstellen">
+                    
+                    <button onclick="openGroupModal()" class="ml-1 text-xs text-slate-400 hover:text-white transition" title="Gruppe wechseln / Liste öffnen">
                         <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                    <button onclick="deleteCurrentGroup()" class="ml-1 text-xs text-slate-500 hover:text-rose-400 transition" title="Aktuelle Gruppe löschen">
+                        <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
 
@@ -243,7 +247,7 @@
 
     </main>
 
-    <!-- MODAL: Switch / Join Group -->
+    <!-- MODAL: Switch / Join Group & List Existing -->
     <div id="groupModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="glass-panel rounded-3xl w-full max-w-md p-6 relative border border-slate-700 shadow-2xl">
             <button onclick="closeGroupModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
@@ -252,16 +256,24 @@
             <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-layer-group text-amber-400"></i> Gruppe Wechseln / Erstellen
             </h3>
-            <p class="text-xs text-slate-400 mb-5">Gib einen Gruppennamen ein, um einen eigenen Raum mit Freunden zu öffnen.</p>
+            <p class="text-xs text-slate-400 mb-4">Wähle eine existierende Gruppe aus oder erstelle eine neue.</p>
 
-            <form onsubmit="handleSwitchGroup(event)" class="space-y-4">
+            <!-- Existing Groups Selection -->
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Verfügbare Gruppen:</label>
+                <div id="existingGroupsList" class="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
+                </div>
+            </div>
+
+            <!-- Create / Join Form -->
+            <form onsubmit="handleSwitchGroup(event)" class="space-y-4 border-t border-slate-800 pt-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Gruppen-Name / Raum-Code</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Neue Gruppe / Code eingeben</label>
                     <input type="text" id="groupNameInput" required placeholder="z.B. WG-Party, Sommerfest-2026" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-rose-500">
                 </div>
-                <div class="flex gap-3 pt-2">
+                <div class="flex gap-3 pt-1">
                     <button type="button" onclick="closeGroupModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Abbrechen</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-600/30 transition">Raum Betreten</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-600/30 transition">Beitreten / Erstellen</button>
                 </div>
             </form>
         </div>
@@ -435,6 +447,9 @@
         const db = getFirestore(app);
 
         window.currentGroupId = localStorage.getItem('winchallenge_group_id') || 'Hauptraum';
+        window.allGroupsList = [];
+
+        const groupRegistryDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'roomState', 'GLOBAL_REGISTRY');
         
         function getDocRef() {
             const cleanGroupId = window.currentGroupId.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -461,6 +476,7 @@
                     await signInAnonymously(auth);
                 }
                 updateSyncStatus(true, "Live verbunden");
+                listenToRegistry();
                 listenToGroupState();
             } catch (err) {
                 console.error("Firebase Auth Fehler:", err);
@@ -468,10 +484,30 @@
             }
         }
 
+        function listenToRegistry() {
+            onSnapshot(groupRegistryDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    window.allGroupsList = docSnap.data().groups || ['Hauptraum'];
+                } else {
+                    window.allGroupsList = ['Hauptraum'];
+                    setDoc(groupRegistryDocRef, { groups: ['Hauptraum'] }, { merge: true });
+                }
+                renderExistingGroupsModal();
+            });
+        }
+
+        async function registerGroupInRegistry(groupName) {
+            if (!window.allGroupsList.includes(groupName)) {
+                window.allGroupsList.push(groupName);
+                await setDoc(groupRegistryDocRef, { groups: window.allGroupsList }, { merge: true });
+            }
+        }
+
         window.listenToGroupState = function() {
             if (unsubscribeSnapshot) unsubscribeSnapshot();
 
             document.getElementById('currentGroupDisplay').textContent = window.currentGroupId;
+            registerGroupInRegistry(window.currentGroupId);
 
             unsubscribeSnapshot = onSnapshot(getDocRef(), (docSnap) => {
                 if (docSnap.exists()) {
@@ -505,6 +541,30 @@
                 await setDoc(getDocRef(), window.appData, { merge: true });
             } catch (err) {
                 console.error("Fehler beim Speichern:", err);
+            }
+        };
+
+        window.deleteCurrentGroup = async function() {
+            const groupToDelete = window.currentGroupId;
+            if (groupToDelete === 'Hauptraum') {
+                return alert('Der "Hauptraum" kann nicht vollständig gelöscht werden!');
+            }
+
+            if (confirm(`Möchtest du die Gruppe "${groupToDelete}" und alle darin enthaltenen Aufgaben wirklich löschen?`)) {
+                window.appData = {
+                    users: [],
+                    challenges: [],
+                    proposals: [],
+                    timer: { totalSeconds: 1800, status: 'STOPPED', endTimestamp: null }
+                };
+                await window.pushStateToFirestore();
+
+                window.allGroupsList = window.allGroupsList.filter(g => g !== groupToDelete);
+                await setDoc(groupRegistryDocRef, { groups: window.allGroupsList }, { merge: true });
+
+                window.currentGroupId = 'Hauptraum';
+                localStorage.setItem('winchallenge_group_id', 'Hauptraum');
+                window.listenToGroupState();
             }
         };
 
@@ -669,6 +729,37 @@
             });
         }
 
+        function renderExistingGroupsModal() {
+            const container = document.getElementById('existingGroupsList');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const groups = window.allGroupsList || ['Hauptraum'];
+
+            groups.forEach(groupName => {
+                const isCurrent = groupName === window.currentGroupId;
+                const item = document.createElement('div');
+                item.className = `p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition ${
+                    isCurrent ? 'bg-rose-600/20 border-rose-500 text-rose-300 font-bold' : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:border-slate-700'
+                }`;
+
+                item.onclick = () => {
+                    window.currentGroupId = groupName;
+                    localStorage.setItem('winchallenge_group_id', groupName);
+                    closeGroupModal();
+                    window.listenToGroupState();
+                };
+
+                item.innerHTML = `
+                    <span class="text-xs flex items-center gap-2">
+                        <i class="fa-solid fa-users text-slate-400"></i> ${groupName}
+                    </span>
+                    ${isCurrent ? '<span class="text-[10px] bg-rose-500 text-white px-2 py-0.5 rounded-full">Aktiv</span>' : '<i class="fa-solid fa-chevron-right text-xs text-slate-600"></i>'}
+                `;
+                container.appendChild(item);
+            });
+        }
+
         window.removeUser = function(userId) {
             const user = (window.appData.users || []).find(u => u.id === userId);
             if (!user) return;
@@ -676,7 +767,6 @@
             if (confirm(`Möchtest du "${user.name}" wirklich aus der Gruppe entfernen?`)) {
                 window.appData.users = (window.appData.users || []).filter(u => u.id !== userId);
 
-                // Falls man sich selbst entfernt hat, wird der nächste aktive User gewählt
                 if (window.currentUserId === userId) {
                     window.currentUserId = window.appData.users.length > 0 ? window.appData.users[0].id : null;
                     if (window.currentUserId) {
@@ -1053,7 +1143,10 @@
             });
         }
 
-        window.openGroupModal = function() { document.getElementById('groupModal').classList.remove('hidden'); };
+        window.openGroupModal = function() { 
+            renderExistingGroupsModal();
+            document.getElementById('groupModal').classList.remove('hidden'); 
+        };
         window.closeGroupModal = function() { document.getElementById('groupModal').classList.add('hidden'); };
         window.openUserModal = function() { document.getElementById('userModal').classList.remove('hidden'); };
         window.closeUserModal = function() { document.getElementById('userModal').classList.add('hidden'); };
