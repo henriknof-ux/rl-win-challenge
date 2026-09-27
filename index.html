@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Life WinChallenge</title>
+    <title>Real Life WinChallenge (Live Sync)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,12 +39,12 @@
             color: #f8fafc;
         }
         .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(30, 41, 59, 0.75);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .glass-panel-interactive {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(30, 41, 59, 0.75);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             transition: all 0.2s ease-in-out;
@@ -80,10 +80,13 @@
                     <i class="fa-solid fa-trophy text-xl text-white"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black tracking-wider bg-gradient-to-r from-white via-slate-200 to-rose-400 bg-clip-text text-transparent">
+                    <h1 class="text-xl font-black tracking-wider bg-gradient-to-r from-white via-slate-200 to-rose-400 bg-clip-text text-transparent flex items-center gap-2">
                         WIN<span class="text-rose-500">CHALLENGE</span>
                     </h1>
-                    <p class="text-xs text-slate-400 font-medium">Real-Life Wettkampf Hub</p>
+                    <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+                        <span id="syncStatusBadge" class="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span id="syncStatusText">Verbinde mit Server...</span>
+                    </p>
                 </div>
             </div>
 
@@ -91,12 +94,12 @@
             <div class="flex items-center gap-3 bg-slate-900/80 p-1.5 pl-3 pr-2 rounded-2xl border border-slate-800">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-user-ninja text-rose-400"></i>
-                    <span class="text-xs text-slate-400 font-medium hidden sm:inline">Aktiver User:</span>
+                    <span class="text-xs text-slate-400 font-medium hidden sm:inline">Ich bin:</span>
                 </div>
                 <select id="activeUserSelect" onchange="switchActiveUser(this.value)" class="bg-slate-800 text-slate-200 text-sm font-semibold rounded-xl px-3 py-1.5 border border-slate-700 focus:outline-none focus:border-rose-500 cursor-pointer">
                     <!-- Options populated via JS -->
                 </select>
-                <button onclick="openUserModal()" class="w-8 h-8 rounded-xl bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 flex items-center justify-center transition" title="Teilnehmer verwalten">
+                <button onclick="openUserModal()" class="w-8 h-8 rounded-xl bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 flex items-center justify-center transition" title="Neuen Teilnehmer registrieren">
                     <i class="fa-solid fa-user-plus text-xs"></i>
                 </button>
             </div>
@@ -106,7 +109,7 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- LEFT COLUMN: Timer Control, Lock Status, Quick Stats -->
+        <!-- LEFT COLUMN: Synchronized Timer Control & Group Rankings -->
         <div class="lg:col-span-4 flex flex-col gap-6">
 
             <!-- Countdown Timer Card -->
@@ -116,7 +119,7 @@
                 </div>
 
                 <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <i class="fa-regular fa-clock text-rose-500"></i> Challenge Timer
+                    <i class="fa-regular fa-clock text-rose-500"></i> Live Challenge Timer
                 </h2>
 
                 <!-- Big Digital Display -->
@@ -127,7 +130,7 @@
                     <p id="timerSubtext" class="text-xs text-slate-400 mt-2">Bereit zum Starten</p>
                 </div>
 
-                <!-- Timer Controls -->
+                <!-- Synchronized Timer Controls -->
                 <div class="flex items-center justify-center gap-2 mb-4">
                     <button id="btnStartTimer" onclick="startTimer()" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold text-white shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition active:scale-95">
                         <i class="fa-solid fa-play text-xs"></i> Start
@@ -140,9 +143,9 @@
                     </button>
                 </div>
 
-                <!-- Timer Setup Form (Disabled while running/finished) -->
+                <!-- Timer Setup Form (Disabled while running) -->
                 <div id="timerSetupBox" class="border-t border-slate-800 pt-4 mt-4">
-                    <label class="block text-xs font-semibold text-slate-400 mb-2">Timer Dauer einstellen:</label>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2">Timer Dauer (Live für alle):</label>
                     <div class="grid grid-cols-3 gap-2">
                         <div>
                             <span class="text-[10px] text-slate-500 uppercase block">Stunden</span>
@@ -161,33 +164,33 @@
 
                 <!-- Lock Status Information Box -->
                 <div class="mt-4 p-3 rounded-2xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 flex items-start gap-2.5">
-                    <i class="fa-solid fa-circle-info text-rose-400 mt-0.5"></i>
+                    <i class="fa-solid fa-wifi text-rose-400 mt-0.5"></i>
                     <p id="lockInfoText">
-                        Solange der Timer <strong>ausgeschaltet</strong> ist, kannst du Challenges hinzufügen/bearbeiten. Sobald der Timer <strong>läuft</strong>, wird das Setup gesperrt und Punkte können eingetragen werden!
+                        Sobald der Timer <strong>läuft</strong>, wird das Setup auf <strong>allen Geräten gleichzeitig</strong> gesperrt und Punkte können live getrackt werden!
                     </p>
                 </div>
             </div>
 
-            <!-- Group & Members Card -->
+            <!-- Group Members Card -->
             <div class="glass-panel rounded-3xl p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-users text-rose-500"></i> Gruppe & Teilnehmer (<span id="userCount">0</span>)
+                        <i class="fa-solid fa-users text-rose-500"></i> Gruppe (<span id="userCount">0</span>)
                     </h2>
                     <button onclick="openUserModal()" class="text-xs bg-rose-600/20 text-rose-300 hover:bg-rose-600/30 px-2.5 py-1 rounded-xl transition flex items-center gap-1 font-semibold">
-                        <i class="fa-solid fa-plus text-[10px]"></i> Neu
+                        <i class="fa-solid fa-plus text-[10px]"></i> Beitritt
                     </button>
                 </div>
 
-                <div id="usersList" class="space-y-2.5 max-h-[260px] overflow-y-auto pr-1">
+                <div id="usersList" class="space-y-2.5 max-h-[240px] overflow-y-auto pr-1">
                     <!-- Dynamic Member Rows -->
                 </div>
             </div>
 
-            <!-- Overall Group Leaderboard Card -->
+            <!-- Overall Leaderboard -->
             <div class="glass-panel rounded-3xl p-6">
                 <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-ranking-star text-amber-400"></i> Overall Leaderboard
+                    <i class="fa-solid fa-ranking-star text-amber-400"></i> Live Gesamtwertung
                 </h2>
 
                 <div id="overallLeaderboard" class="space-y-2">
@@ -197,28 +200,28 @@
 
         </div>
 
-        <!-- RIGHT COLUMN: Challenges Overview, Add Challenge Button & Cards -->
+        <!-- RIGHT COLUMN: Live Challenges & Actions -->
         <div class="lg:col-span-8 flex flex-col gap-6">
 
-            <!-- Banner / Header Action Bar -->
+            <!-- Banner / Action Header -->
             <div class="glass-panel rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl font-extrabold text-white">Challenge Dashboard</h2>
-                    <p class="text-sm text-slate-400">Sammle Punkte & Kilometer für dein Team!</p>
+                    <h2 class="text-2xl font-extrabold text-white">Live Challenge Room</h2>
+                    <p class="text-sm text-slate-400">Gemeinsam Ziele erreichen & Stand auf allen Screens sehen!</p>
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto">
                     <button id="btnCreateChallenge" onclick="openChallengeModal()" class="w-full sm:w-auto py-3 px-5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-bold shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 transition active:scale-95">
-                        <i class="fa-solid fa-plus"></i> Neue Challenge
+                        <i class="fa-solid fa-plus"></i> Challenge Hinzufügen
                     </button>
-                    <button onclick="loadDemoData()" title="Demo Daten laden" class="py-3 px-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition" title="Beispieldaten laden">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <button onclick="resetAllDataConfirm()" title="Komplette Session zurücksetzen" class="py-3 px-3 rounded-2xl bg-slate-800 hover:bg-rose-950 hover:text-rose-400 text-slate-400 font-semibold transition" title="Session Reset">
+                        <i class="fa-solid fa-rotate-right"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Challenge Cards Container -->
             <div id="challengesContainer" class="space-y-6">
-                <!-- Dynamic Challenge Cards Loaded Here -->
+                <!-- Dynamic Live Challenge Cards -->
             </div>
 
         </div>
@@ -232,24 +235,24 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
-                <i class="fa-solid fa-user-plus text-rose-500"></i> Teilnehmer hinzufügen
+                <i class="fa-solid fa-user-plus text-rose-500"></i> In Gruppe eintragen
             </h3>
-            <p class="text-xs text-slate-400 mb-5">Füge einen neuen Mitstreiter zur Gruppe hinzu.</p>
+            <p class="text-xs text-slate-400 mb-5">Gib deinen Namen an, damit du Punkte eintragen kannst.</p>
 
             <form onsubmit="handleAddUser(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Name / Pseudonym</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Dein Name / Pseudonym</label>
                     <input type="text" id="newUserName" required placeholder="z.B. Alex, SpeedRunner" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-rose-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Avatar Farbe</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Deine Badge-Farbe</label>
                     <div class="flex gap-2" id="colorPickerContainer">
                         <!-- Populated via JS -->
                     </div>
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="closeUserModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Abbrechen</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-600/30 transition">Speichern</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-600/30 transition">Beitreten</button>
                 </div>
             </form>
         </div>
@@ -262,9 +265,9 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
-                <i class="fa-solid fa-bullseye text-rose-500"></i> Neue Challenge erstellen
+                <i class="fa-solid fa-bullseye text-rose-500"></i> Neue Live Challenge
             </h3>
-            <p class="text-xs text-slate-400 mb-5">Setze ein Ziel für die gesamte Gruppe oder als Einzelwettkampf.</p>
+            <p class="text-xs text-slate-400 mb-5">Erstelle ein Ziel für alle Teilnehmer.</p>
 
             <form onsubmit="handleCreateChallenge(event)" class="space-y-4">
                 <div>
@@ -298,7 +301,7 @@
 
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="closeChallengeModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Abbrechen</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-600/30 transition">Challenge Startklar machen</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-600/30 transition">Challenge Veröffentlichen</button>
                 </div>
             </form>
         </div>
@@ -313,7 +316,7 @@
             <h3 id="progressModalTitle" class="text-lg font-bold text-white mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-plus-circle text-emerald-400"></i> Fortschritt eintragen
             </h3>
-            <p id="progressModalSub" class="text-xs text-slate-400 mb-4">Fortschritt für aktiven User hinzufügen.</p>
+            <p id="progressModalSub" class="text-xs text-slate-400 mb-4">Wird live für alle eingetragen.</p>
 
             <form onsubmit="handleAddProgress(event)" class="space-y-4">
                 <input type="hidden" id="progressChallengeId">
@@ -326,9 +329,9 @@
 
                 <!-- Quick Increment Buttons -->
                 <div class="flex gap-2">
-                    <button type="button" onclick="addQuickValue(1)" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-semibold">+1</button>
-                    <button type="button" onclick="addQuickValue(5)" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-semibold">+5</button>
-                    <button type="button" onclick="addQuickValue(10)" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-semibold">+10</button>
+                    <button type="button" onclick="addQuickValue(1)" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-bold border border-slate-700">+1</button>
+                    <button type="button" onclick="addQuickValue(5)" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-bold border border-slate-700">+5</button>
+                    <button type="button" onclick="addQuickValue(10)" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-bold border border-slate-700">+10</button>
                 </div>
 
                 <div>
@@ -338,73 +341,112 @@
 
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="closeProgressModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Abbrechen</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-600/30 transition">Eintragen</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-600/30 transition">Live Buchen</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script>
-        // --- APP STATE & STORAGE CONSTANTS ---
-        const STORAGE_KEY = 'winchallenge_app_data';
+    <!-- FIREBASE MODULE & REAL-TIME LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        let appData = {
+        // Firebase Configuration setup
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'real-life-winchallenge-default';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                // Fallback config if environment not provided
+                apiKey: "AIzaSyDemoKeyForWinChallengeAppKey123",
+                authDomain: "winchallenge-demo.firebaseapp.com",
+                projectId: "winchallenge-demo",
+                storageBucket: "winchallenge-demo.appspot.com",
+                messagingSenderId: "1234567890",
+                appId: "1:1234567890:web:abcdef123456"
+            };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Firestore document path rule for shared session data
+        const sharedStateDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'roomState', 'mainSession');
+
+        // Local state replica
+        window.appData = {
             users: [],
             challenges: [],
-            activeUserId: null,
             timer: {
                 totalSeconds: 1800,
-                remainingSeconds: 1800,
                 status: 'STOPPED', // 'RUNNING', 'PAUSED', 'STOPPED', 'FINISHED'
-                lastTick: null
+                endTimestamp: null,
+                remainingSeconds: 1800
             }
         };
 
-        let timerInterval = null;
-        let selectedColor = '#f43f5e';
-        let selectedIcon = 'fa-person-running';
+        window.currentUserId = localStorage.getItem('winchallenge_my_user_id') || null;
+        window.timerInterval = null;
+        window.hasCelebrated = false;
 
-        const AVATAR_COLORS = [
-            '#f43f5e', '#3b82f6', '#10b981', '#f59e0b', 
-            '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
-        ];
-
-        const CATEGORY_ICONS = [
-            'fa-person-running', 'fa-dumbbell', 'fa-bicycle', 
-            'fa-person-swimming', 'fa-person-hiking', 'fa-fire', 
-            'fa-trophy', 'fa-bullseye', 'fa-heart-pulse', 'fa-brain'
-        ];
-
-        // --- INITIALIZATION ---
-        window.onload = function () {
-            loadFromStorage();
-            if (appData.users.length === 0) {
-                loadDemoData();
-            } else {
-                renderAll();
-            }
-            initModalOptions();
-            setupTimerFromState();
-        };
-
-        // --- LOCAL STORAGE FUNCTIONS ---
-        function saveToStorage() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        }
-
-        function loadFromStorage() {
-            const data = localStorage.getItem(STORAGE_KEY);
-            if (data) {
-                try {
-                    appData = JSON.parse(data);
-                } catch (e) {
-                    console.error('Fehler beim Laden aus LocalStorage', e);
+        // Initialize Firebase Authentication
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
                 }
+                updateSyncStatus(true, "Live verbunden");
+                listenToRealtimeState();
+            } catch (err) {
+                console.error("Firebase Auth Fehler:", err);
+                updateSyncStatus(false, "Verbindungsfehler");
             }
         }
 
-        function loadDemoData() {
-            appData = {
+        // Listen for Realtime Changes across all clients
+        function listenToRealtimeState() {
+            onSnapshot(sharedStateDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    window.appData = {
+                        users: data.users || [],
+                        challenges: data.challenges || [],
+                        timer: data.timer || { totalSeconds: 1800, status: 'STOPPED', endTimestamp: null, remainingSeconds: 1800 }
+                    };
+                } else {
+                    // Seed initial state if doc does not exist
+                    seedInitialDocument();
+                }
+                
+                // Keep local active user valid
+                if (!window.currentUserId && window.appData.users.length > 0) {
+                    window.currentUserId = window.appData.users[0].id;
+                    localStorage.setItem('winchallenge_my_user_id', window.currentUserId);
+                }
+
+                syncTimerWithServerTime();
+                window.renderAll();
+            }, (error) => {
+                console.error("Firestore Error:", error);
+                updateSyncStatus(false, "Sync abgebrochen");
+            });
+        }
+
+        // Write State Changes to Firestore
+        window.pushStateToFirestore = async function() {
+            if (!auth.currentUser) return;
+            try {
+                await setDoc(sharedStateDocRef, window.appData, { merge: true });
+            } catch (err) {
+                console.error("Fehler beim Speichern in Firestore:", err);
+            }
+        };
+
+        async function seedInitialDocument() {
+            window.appData = {
                 users: [
                     { id: 'u1', name: 'Max Power', color: '#f43f5e' },
                     { id: 'u2', name: 'Laura Fit', color: '#3b82f6' },
@@ -435,41 +477,105 @@
                         ]
                     }
                 ],
-                activeUserId: 'u1',
                 timer: {
                     totalSeconds: 3600,
                     remainingSeconds: 3600,
-                    status: 'STOPPED'
+                    status: 'STOPPED',
+                    endTimestamp: null
                 }
             };
-            saveToStorage();
-            renderAll();
+            window.pushStateToFirestore();
         }
 
-        // --- RENDER FUNCTIONS ---
-        function renderAll() {
+        function updateSyncStatus(connected, text) {
+            const badge = document.getElementById('syncStatusBadge');
+            const txt = document.getElementById('syncStatusText');
+            if (connected) {
+                badge.className = "inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+            } else {
+                badge.className = "inline-block w-2 h-2 rounded-full bg-rose-500";
+            }
+            txt.textContent = text;
+        }
+
+        // Realtime Timer Sync Handler
+        function syncTimerWithServerTime() {
+            if (window.timerInterval) clearInterval(window.timerInterval);
+
+            const timer = window.appData.timer;
+
+            if (timer.status === 'RUNNING' && timer.endTimestamp) {
+                window.timerInterval = setInterval(() => {
+                    const now = Date.now();
+                    const diffSeconds = Math.max(0, Math.ceil((timer.endTimestamp - now) / 1000));
+                    
+                    window.appData.timer.remainingSeconds = diffSeconds;
+                    window.updateTimerDisplay();
+
+                    if (diffSeconds <= 0) {
+                        clearInterval(window.timerInterval);
+                        window.appData.timer.status = 'FINISHED';
+                        window.updateLockStatusUI();
+                        
+                        if (!window.hasCelebrated) {
+                            window.hasCelebrated = true;
+                            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                        }
+                    }
+                }, 1000);
+            } else {
+                window.hasCelebrated = false;
+            }
+        }
+
+        // Start initialization
+        initAuth();
+    </script>
+
+    <!-- UI INTERACTORS & APP LOGIC -->
+    <script>
+        let selectedColor = '#f43f5e';
+        let selectedIcon = 'fa-person-running';
+
+        const AVATAR_COLORS = [
+            '#f43f5e', '#3b82f6', '#10b981', '#f59e0b', 
+            '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
+        ];
+
+        const CATEGORY_ICONS = [
+            'fa-person-running', 'fa-dumbbell', 'fa-bicycle', 
+            'fa-person-swimming', 'fa-person-hiking', 'fa-fire', 
+            'fa-trophy', 'fa-bullseye', 'fa-heart-pulse', 'fa-brain'
+        ];
+
+        window.onload = function () {
+            initModalOptions();
+        };
+
+        // --- RENDER ALL UI SECTIONS ---
+        window.renderAll = function() {
             renderActiveUserDropdown();
             renderUsersList();
             renderChallenges();
             renderOverallLeaderboard();
-            updateTimerDisplay();
-            updateLockStatusUI();
-        }
+            window.updateTimerDisplay();
+            window.updateLockStatusUI();
+        };
 
         function renderActiveUserDropdown() {
             const select = document.getElementById('activeUserSelect');
             select.innerHTML = '';
             
-            if (appData.users.length === 0) {
-                select.innerHTML = '<option value="">Kein User vorhanden</option>';
+            if (!window.appData.users || window.appData.users.length === 0) {
+                select.innerHTML = '<option value="">Kein User</option>';
                 return;
             }
 
-            appData.users.forEach(user => {
+            window.appData.users.forEach(user => {
                 const opt = document.createElement('option');
                 opt.value = user.id;
                 opt.textContent = user.name;
-                if (user.id === appData.activeUserId) opt.selected = true;
+                if (user.id === window.currentUserId) opt.selected = true;
                 select.appendChild(opt);
             });
         }
@@ -477,16 +583,19 @@
         function renderUsersList() {
             const container = document.getElementById('usersList');
             const countEl = document.getElementById('userCount');
-            countEl.textContent = appData.users.length;
+            const users = window.appData.users || [];
+            countEl.textContent = users.length;
             container.innerHTML = '';
 
-            if (appData.users.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-2">Keine Teilnehmer angelegt.</p>`;
+            if (users.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-2">Keine Teilnehmer eingetragen.</p>`;
                 return;
             }
 
-            appData.users.forEach(user => {
-                const isActive = user.id === appData.activeUserId;
+            const isLocked = window.appData.timer && window.appData.timer.status === 'RUNNING';
+
+            users.forEach(user => {
+                const isActive = user.id === window.currentUserId;
                 const card = document.createElement('div');
                 card.className = `flex items-center justify-between p-2.5 rounded-2xl border transition ${
                     isActive ? 'bg-slate-800/90 border-rose-500/50 shadow-md' : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'
@@ -498,13 +607,13 @@
                             ${user.name.substring(0, 2).toUpperCase()}
                         </div>
                         <span class="text-sm font-semibold text-slate-200">${user.name}</span>
-                        ${isActive ? '<span class="text-[10px] bg-rose-500/20 text-rose-300 font-bold px-2 py-0.5 rounded-full">Aktiv</span>' : ''}
+                        ${isActive ? '<span class="text-[10px] bg-rose-500/20 text-rose-300 font-bold px-2 py-0.5 rounded-full">Du</span>' : ''}
                     </div>
                     <div class="flex items-center gap-1">
-                        <button onclick="switchActiveUser('${user.id}')" title="Als aktiven User wählen" class="p-1.5 text-xs text-slate-400 hover:text-white transition">
+                        <button onclick="switchActiveUser('${user.id}')" title="Als mich wählen" class="p-1.5 text-xs text-slate-400 hover:text-white transition">
                             <i class="fa-solid fa-circle-check ${isActive ? 'text-rose-500' : 'text-slate-600'}"></i>
                         </button>
-                        <button onclick="deleteUser('${user.id}')" title="Löschen" ${appData.timer.status === 'RUNNING' ? 'disabled' : ''} class="p-1.5 text-xs text-slate-500 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed transition">
+                        <button onclick="deleteUser('${user.id}')" title="Entfernen" ${isLocked ? 'disabled' : ''} class="p-1.5 text-xs text-slate-500 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed transition">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -516,12 +625,13 @@
         function renderChallenges() {
             const container = document.getElementById('challengesContainer');
             container.innerHTML = '';
+            const challenges = window.appData.challenges || [];
 
-            if (appData.challenges.length === 0) {
+            if (challenges.length === 0) {
                 container.innerHTML = `
                     <div class="glass-panel rounded-3xl p-8 text-center border-dashed border-slate-800">
                         <i class="fa-solid fa-flag-checkered text-4xl text-slate-600 mb-3 block"></i>
-                        <h3 class="text-lg font-bold text-slate-300">Keine aktiven Challenges</h3>
+                        <h3 class="text-lg font-bold text-slate-300">Keine aktiven Live-Challenges</h3>
                         <p class="text-xs text-slate-500 mt-1 mb-4">Erstelle deine erste Challenge um den Wettkampf zu starten.</p>
                         <button onclick="openChallengeModal()" class="py-2.5 px-4 bg-rose-600 text-white font-bold rounded-xl text-xs hover:bg-rose-500 shadow-lg shadow-rose-600/20">
                             + Challenge Anlegen
@@ -531,32 +641,28 @@
                 return;
             }
 
-            const isLocked = appData.timer.status === 'RUNNING';
-            const isFinished = appData.timer.status === 'FINISHED';
+            const isLocked = window.appData.timer && window.appData.timer.status === 'RUNNING';
+            const isFinished = window.appData.timer && window.appData.timer.status === 'FINISHED';
 
-            appData.challenges.forEach(ch => {
-                // Calculation totals
-                const totalProgress = ch.entries.reduce((sum, e) => sum + Number(e.value), 0);
+            challenges.forEach(ch => {
+                const totalProgress = (ch.entries || []).reduce((sum, e) => sum + Number(e.value), 0);
                 const percent = Math.min(100, Math.round((totalProgress / ch.target) * 100));
 
-                // Member rankings for this specific challenge
+                // Member rankings for this challenge
                 const userTotals = {};
-                ch.entries.forEach(e => {
+                (ch.entries || []).forEach(e => {
                     userTotals[e.userId] = (userTotals[e.userId] || 0) + Number(e.value);
                 });
 
-                const sortedContributors = appData.users.map(u => ({
+                const sortedContributors = (window.appData.users || []).map(u => ({
                     ...u,
                     score: userTotals[u.id] || 0
                 })).sort((a, b) => b.score - a.score);
-
-                const winner = percent >= 100 || isFinished ? sortedContributors[0] : null;
 
                 const card = document.createElement('div');
                 card.className = "glass-panel-interactive rounded-3xl p-6 relative overflow-hidden";
 
                 card.innerHTML = `
-                    <!-- Header with Icon & Actions -->
                     <div class="flex items-start justify-between gap-4 mb-4">
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 rounded-2xl bg-rose-600/10 border border-rose-500/20 text-rose-500 flex items-center justify-center text-xl shadow-inner">
@@ -565,7 +671,7 @@
                             <div>
                                 <h3 class="text-lg font-bold text-white flex items-center gap-2">
                                     ${ch.title}
-                                    ${percent >= 100 ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-check"></i> Ziel Erreicht!</span>' : ''}
+                                    ${percent >= 100 ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-check"></i> Erreicht!</span>' : ''}
                                 </h3>
                                 <p class="text-xs text-slate-400 font-medium">
                                     Ziel: <span class="text-slate-200 font-bold">${ch.target} ${ch.unit}</span>
@@ -573,22 +679,20 @@
                             </div>
                         </div>
 
-                        <!-- Actions -->
                         <div class="flex items-center gap-2">
                             <button onclick="openProgressModal('${ch.id}')" ${!isLocked ? 'disabled' : ''} 
                                 class="py-2 px-3.5 rounded-xl ${isLocked ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 cursor-pointer' : 'bg-slate-800 text-slate-500 cursor-not-allowed'} font-bold text-xs flex items-center gap-1.5 transition">
-                                <i class="fa-solid fa-plus"></i> Fortschritt
+                                <i class="fa-solid fa-plus"></i> Buchen
                             </button>
-                            <button onclick="deleteChallenge('${ch.id}')" ${isLocked ? 'disabled' : ''} title="Challenge löschen" class="w-8 h-8 rounded-xl bg-slate-800/80 hover:bg-rose-600/20 text-slate-400 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition">
+                            <button onclick="deleteChallenge('${ch.id}')" ${isLocked ? 'disabled' : ''} title="Löschen" class="w-8 h-8 rounded-xl bg-slate-800/80 hover:bg-rose-600/20 text-slate-400 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition">
                                 <i class="fa-solid fa-trash text-xs"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Progress Bar -->
                     <div class="mb-5">
                         <div class="flex justify-between text-xs font-bold mb-1.5">
-                            <span class="text-slate-400">Gesamter Fortschritt</span>
+                            <span class="text-slate-400">Gesamt-Fortschritt</span>
                             <span class="text-rose-400">${totalProgress.toFixed(1)} / ${ch.target} ${ch.unit} (${percent}%)</span>
                         </div>
                         <div class="w-full h-3.5 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
@@ -596,11 +700,9 @@
                         </div>
                     </div>
 
-                    <!-- Rankings per Challenge -->
                     <div class="border-t border-slate-800/80 pt-4 mt-4">
                         <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center justify-between">
-                            <span><i class="fa-solid fa-medal text-amber-400 mr-1"></i> Teilnehmer-Stand</span>
-                            <span class="text-[10px] text-slate-500 font-normal">Details</span>
+                            <span><i class="fa-solid fa-medal text-amber-400 mr-1"></i> Live Ranking</span>
                         </h4>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -627,25 +729,25 @@
         function renderOverallLeaderboard() {
             const container = document.getElementById('overallLeaderboard');
             container.innerHTML = '';
+            const users = window.appData.users || [];
 
-            if (appData.users.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 italic py-2">Keine Daten.</p>`;
+            if (users.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 italic py-2">Keine Teilnehmer.</p>`;
                 return;
             }
 
-            // Calculate overall score (sums all numbers entered by user)
             const scores = {};
-            appData.users.forEach(u => scores[u.id] = 0);
+            users.forEach(u => scores[u.id] = 0);
 
-            appData.challenges.forEach(ch => {
-                ch.entries.forEach(e => {
+            (window.appData.challenges || []).forEach(ch => {
+                (ch.entries || []).forEach(e => {
                     if (scores[e.userId] !== undefined) {
                         scores[e.userId] += Number(e.value);
                     }
                 });
             });
 
-            const sorted = appData.users.map(u => ({
+            const sorted = users.map(u => ({
                 ...u,
                 total: scores[u.id] || 0
             })).sort((a, b) => b.total - a.total);
@@ -672,16 +774,10 @@
             });
         }
 
-        // --- TIMER LOGIC ---
-        function setupTimerFromState() {
-            updateTimerDisplay();
-            if (appData.timer.status === 'RUNNING') {
-                startTimerInterval();
-            }
-        }
-
-        function startTimer() {
-            if (appData.timer.status === 'STOPPED') {
+        // --- TIMER & LOCK SYNC CONTROL ---
+        window.startTimer = function() {
+            const timer = window.appData.timer || {};
+            if (timer.status === 'STOPPED' || timer.status === 'FINISHED') {
                 const h = parseInt(document.getElementById('inputHours').value) || 0;
                 const m = parseInt(document.getElementById('inputMinutes').value) || 0;
                 const s = parseInt(document.getElementById('inputSeconds').value) || 0;
@@ -691,60 +787,43 @@
                     alert('Bitte stelle eine gültige Dauer für den Timer ein!');
                     return;
                 }
-                appData.timer.totalSeconds = total;
-                appData.timer.remainingSeconds = total;
+                timer.totalSeconds = total;
+                timer.remainingSeconds = total;
             }
 
-            appData.timer.status = 'RUNNING';
-            saveToStorage();
-            startTimerInterval();
-            renderAll();
-        }
+            const now = Date.now();
+            timer.endTimestamp = now + (timer.remainingSeconds * 1000);
+            timer.status = 'RUNNING';
 
-        function startTimerInterval() {
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if (appData.timer.remainingSeconds > 0) {
-                    appData.timer.remainingSeconds--;
-                    updateTimerDisplay();
-                    saveToStorage();
-                } else {
-                    finishTimer();
-                }
-            }, 1000);
-        }
+            window.appData.timer = timer;
+            window.pushStateToFirestore();
+        };
 
-        function pauseTimer() {
-            appData.timer.status = 'PAUSED';
-            if (timerInterval) clearInterval(timerInterval);
-            saveToStorage();
-            renderAll();
-        }
+        window.pauseTimer = function() {
+            const timer = window.appData.timer;
+            if (timer.status === 'RUNNING' && timer.endTimestamp) {
+                const remaining = Math.max(0, Math.ceil((timer.endTimestamp - Date.now()) / 1000));
+                timer.remainingSeconds = remaining;
+            }
+            timer.status = 'PAUSED';
+            timer.endTimestamp = null;
 
-        function resetTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            appData.timer.status = 'STOPPED';
-            appData.timer.remainingSeconds = appData.timer.totalSeconds || 1800;
-            saveToStorage();
-            renderAll();
-        }
+            window.appData.timer = timer;
+            window.pushStateToFirestore();
+        };
 
-        function finishTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            appData.timer.status = 'FINISHED';
-            saveToStorage();
-            renderAll();
+        window.resetTimer = function() {
+            window.appData.timer = {
+                totalSeconds: window.appData.timer.totalSeconds || 1800,
+                remainingSeconds: window.appData.timer.totalSeconds || 1800,
+                status: 'STOPPED',
+                endTimestamp: null
+            };
+            window.pushStateToFirestore();
+        };
 
-            // Trigger Winner Celebration Confetti
-            confetti({
-                particleCount: 120,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-        }
-
-        function updateTimerDisplay() {
-            const sec = appData.timer.remainingSeconds || 0;
+        window.updateTimerDisplay = function() {
+            const sec = (window.appData.timer && window.appData.timer.remainingSeconds) || 0;
             const h = Math.floor(sec / 3600);
             const m = Math.floor((sec % 3600) / 60);
             const s = sec % 60;
@@ -753,15 +832,18 @@
             document.getElementById('timerDisplay').textContent = `${format(h)}:${format(m)}:${format(s)}`;
 
             const sub = document.getElementById('timerSubtext');
-            if (appData.timer.status === 'RUNNING') sub.textContent = 'Challenge läuft! Ergebnisse eintragen...';
-            else if (appData.timer.status === 'PAUSED') sub.textContent = 'Timer Pausiert';
-            else if (appData.timer.status === 'FINISHED') sub.textContent = 'Challenge Beendet!';
-            else sub.textContent = 'Bereit zum Starten';
-        }
+            const status = window.appData.timer ? window.appData.timer.status : 'STOPPED';
 
-        function updateLockStatusUI() {
-            const isRunning = appData.timer.status === 'RUNNING';
-            const isFinished = appData.timer.status === 'FINISHED';
+            if (status === 'RUNNING') sub.textContent = 'Challenge LÄUFT! Ergebnisse eintragen...';
+            else if (status === 'PAUSED') sub.textContent = 'Timer Pausiert';
+            else if (status === 'FINISHED') sub.textContent = 'Challenge Beendet!';
+            else sub.textContent = 'Bereit zum Starten';
+        };
+
+        window.updateLockStatusUI = function() {
+            const status = window.appData.timer ? window.appData.timer.status : 'STOPPED';
+            const isRunning = status === 'RUNNING';
+
             const badge = document.getElementById('timerLockBadge');
             const btnStart = document.getElementById('btnStartTimer');
             const btnPause = document.getElementById('btnPauseTimer');
@@ -770,7 +852,7 @@
 
             if (isRunning) {
                 badge.className = "absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 animate-pulse";
-                badge.innerHTML = `<i class="fa-solid fa-lock text-rose-400"></i> Locked (Aktiv)`;
+                badge.innerHTML = `<i class="fa-solid fa-lock text-rose-400"></i> Live Locked`;
 
                 btnStart.disabled = true;
                 btnStart.classList.add('opacity-50', 'cursor-not-allowed');
@@ -798,16 +880,16 @@
 
                 inputs.forEach(i => i.disabled = false);
             }
-        }
+        };
 
-        // --- USER MANAGEMENT ---
-        function switchActiveUser(id) {
-            appData.activeUserId = id;
-            saveToStorage();
-            renderAll();
-        }
+        // --- USER ACTIONS ---
+        window.switchActiveUser = function(id) {
+            window.currentUserId = id;
+            localStorage.setItem('winchallenge_my_user_id', id);
+            window.renderAll();
+        };
 
-        function handleAddUser(e) {
+        window.handleAddUser = function(e) {
             e.preventDefault();
             const name = document.getElementById('newUserName').value.trim();
             if (!name) return;
@@ -818,32 +900,32 @@
                 color: selectedColor
             };
 
-            appData.users.push(newUser);
-            if (!appData.activeUserId) appData.activeUserId = newUser.id;
+            window.appData.users = window.appData.users || [];
+            window.appData.users.push(newUser);
+            window.currentUserId = newUser.id;
+            localStorage.setItem('winchallenge_my_user_id', newUser.id);
 
-            saveToStorage();
-            renderAll();
+            window.pushStateToFirestore();
             closeUserModal();
             document.getElementById('newUserName').value = '';
-        }
+        };
 
-        function deleteUser(id) {
-            if (appData.timer.status === 'RUNNING') {
+        window.deleteUser = function(id) {
+            if (window.appData.timer && window.appData.timer.status === 'RUNNING') {
                 alert('Während die Challenge läuft können keine Teilnehmer gelöscht werden!');
                 return;
             }
-            appData.users = appData.users.filter(u => u.id !== id);
-            if (appData.activeUserId === id) {
-                appData.activeUserId = appData.users.length > 0 ? appData.users[0].id : null;
+            window.appData.users = (window.appData.users || []).filter(u => u.id !== id);
+            if (window.currentUserId === id) {
+                window.currentUserId = window.appData.users.length > 0 ? window.appData.users[0].id : null;
             }
-            saveToStorage();
-            renderAll();
-        }
+            window.pushStateToFirestore();
+        };
 
-        // --- CHALLENGE MANAGEMENT ---
-        function handleCreateChallenge(e) {
+        // --- CHALLENGE ACTIONS ---
+        window.handleCreateChallenge = function(e) {
             e.preventDefault();
-            if (appData.timer.status === 'RUNNING') {
+            if (window.appData.timer && window.appData.timer.status === 'RUNNING') {
                 alert('Während die Challenge läuft können keine neuen Aufgaben hinzugefügt werden!');
                 return;
             }
@@ -863,72 +945,76 @@
                 entries: []
             };
 
-            appData.challenges.push(newChallenge);
-            saveToStorage();
-            renderAll();
+            window.appData.challenges = window.appData.challenges || [];
+            window.appData.challenges.push(newChallenge);
+
+            window.pushStateToFirestore();
             closeChallengeModal();
             document.getElementById('challengeTitle').value = '';
             document.getElementById('challengeTarget').value = '';
-        }
+        };
 
-        function deleteChallenge(id) {
-            if (appData.timer.status === 'RUNNING') {
+        window.deleteChallenge = function(id) {
+            if (window.appData.timer && window.appData.timer.status === 'RUNNING') {
                 alert('Während die Challenge läuft können keine Aufgaben gelöscht werden!');
                 return;
             }
-            appData.challenges = appData.challenges.filter(c => c.id !== id);
-            saveToStorage();
-            renderAll();
-        }
+            window.appData.challenges = (window.appData.challenges || []).filter(c => c.id !== id);
+            window.pushStateToFirestore();
+        };
 
-        // --- PROGRESS / ENTRY LOGIC ---
-        function handleAddProgress(e) {
+        // --- PROGRESS LOGGING ---
+        window.handleAddProgress = function(e) {
             e.preventDefault();
             const chId = document.getElementById('progressChallengeId').value;
             const val = parseFloat(document.getElementById('progressValue').value);
             const note = document.getElementById('progressNote').value.trim();
 
-            if (!appData.activeUserId) {
-                alert('Bitte wähle zuerst einen aktiven Teilnehmer aus!');
+            if (!window.currentUserId) {
+                alert('Bitte trage dich zuerst in der Gruppe ein!');
                 return;
             }
 
             if (isNaN(val) || val <= 0) return;
 
-            const challenge = appData.challenges.find(c => c.id === chId);
+            const challenge = (window.appData.challenges || []).find(c => c.id === chId);
             if (challenge) {
+                challenge.entries = challenge.entries || [];
                 challenge.entries.push({
-                    userId: appData.activeUserId,
+                    userId: window.currentUserId,
                     value: val,
                     note: note,
                     date: new Date().toISOString()
                 });
 
-                saveToStorage();
-                renderAll();
-
-                // Small celebratory burst
-                confetti({
-                    particleCount: 30,
-                    spread: 50,
-                    origin: { y: 0.8 }
-                });
+                window.pushStateToFirestore();
+                confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
             }
 
             closeProgressModal();
             document.getElementById('progressValue').value = '';
             document.getElementById('progressNote').value = '';
-        }
+        };
 
-        function addQuickValue(v) {
+        window.addQuickValue = function(v) {
             const inp = document.getElementById('progressValue');
             const current = parseFloat(inp.value) || 0;
             inp.value = current + v;
-        }
+        };
 
-        // --- MODAL UTILS ---
+        window.resetAllDataConfirm = function() {
+            if (confirm("Möchtest du die gesamte Live-Session für alle Geräte zurücksetzen?")) {
+                window.appData = {
+                    users: [],
+                    challenges: [],
+                    timer: { totalSeconds: 1800, remainingSeconds: 1800, status: 'STOPPED', endTimestamp: null }
+                };
+                window.pushStateToFirestore();
+            }
+        };
+
+        // --- MODALS & PICKERS ---
         function initModalOptions() {
-            // Populate Color Picker
             const colorContainer = document.getElementById('colorPickerContainer');
             colorContainer.innerHTML = '';
             AVATAR_COLORS.forEach((col, idx) => {
@@ -944,7 +1030,6 @@
                 colorContainer.appendChild(btn);
             });
 
-            // Populate Icon Picker
             const iconContainer = document.getElementById('iconPickerContainer');
             iconContainer.innerHTML = '';
             CATEGORY_ICONS.forEach((ic, idx) => {
@@ -961,45 +1046,37 @@
             });
         }
 
-        function openUserModal() {
-            document.getElementById('userModal').classList.remove('hidden');
-        }
-        function closeUserModal() {
-            document.getElementById('userModal').classList.add('hidden');
-        }
+        window.openUserModal = function() { document.getElementById('userModal').classList.remove('hidden'); };
+        window.closeUserModal = function() { document.getElementById('userModal').classList.add('hidden'); };
 
-        function openChallengeModal() {
-            if (appData.timer.status === 'RUNNING') {
+        window.openChallengeModal = function() {
+            if (window.appData.timer && window.appData.timer.status === 'RUNNING') {
                 alert('Die Challenge läuft aktuell! Währenddessen können keine neuen Challenges angelegt werden.');
                 return;
             }
             document.getElementById('challengeModal').classList.remove('hidden');
-        }
-        function closeChallengeModal() {
-            document.getElementById('challengeModal').classList.add('hidden');
-        }
+        };
+        window.closeChallengeModal = function() { document.getElementById('challengeModal').classList.add('hidden'); };
 
-        function openProgressModal(chId) {
-            if (appData.timer.status !== 'RUNNING') {
-                alert('Fortschritte können nur eingetragen werden, wenn der Timer AKTIV läuft!');
+        window.openProgressModal = function(chId) {
+            if (!window.appData.timer || window.appData.timer.status !== 'RUNNING') {
+                alert('Fortschritte können nur eingetragen werden, wenn der Live-Timer AKTIV läuft!');
                 return;
             }
 
-            const ch = appData.challenges.find(c => c.id === chId);
+            const ch = (window.appData.challenges || []).find(c => c.id === chId);
             if (!ch) return;
 
             document.getElementById('progressChallengeId').value = chId;
             document.getElementById('progressUnitLabel').textContent = ch.unit;
             document.getElementById('progressModalTitle').innerHTML = `<i class="fa-solid fa-plus-circle text-emerald-400"></i> ${ch.title}`;
 
-            const activeUser = appData.users.find(u => u.id === appData.activeUserId);
-            document.getElementById('progressModalSub').textContent = `Fortschritt für ${activeUser ? activeUser.name : 'Aktiven User'} eintragen`;
+            const activeUser = (window.appData.users || []).find(u => u.id === window.currentUserId);
+            document.getElementById('progressModalSub').textContent = `Buchen als: ${activeUser ? activeUser.name : 'Unbekannt'}`;
 
             document.getElementById('progressModal').classList.remove('hidden');
-        }
-        function closeProgressModal() {
-            document.getElementById('progressModal').classList.add('hidden');
-        }
+        };
+        window.closeProgressModal = function() { document.getElementById('progressModal').classList.add('hidden'); };
     </script>
 </body>
 </html>
