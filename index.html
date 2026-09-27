@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Life WinChallenge (Live Sync)</title>
+    <title>Real Life WinChallenge - Team Edition</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -53,7 +53,6 @@
             border-color: rgba(244, 63, 94, 0.4);
             transform: translateY(-2px);
         }
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -77,11 +76,11 @@
             <!-- App Logo / Title -->
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-600/30">
-                    <i class="fa-solid fa-trophy text-xl text-white"></i>
+                    <i class="fa-solid fa-users text-xl text-white"></i>
                 </div>
                 <div>
                     <h1 class="text-xl font-black tracking-wider bg-gradient-to-r from-white via-slate-200 to-rose-400 bg-clip-text text-transparent flex items-center gap-2">
-                        WIN<span class="text-rose-500">CHALLENGE</span>
+                        TEAM<span class="text-rose-500">CHALLENGE</span>
                     </h1>
                     <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
                         <span id="syncStatusBadge" class="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
@@ -90,18 +89,28 @@
                 </div>
             </div>
 
-            <!-- Active User Selector & Status -->
-            <div class="flex items-center gap-3 bg-slate-900/80 p-1.5 pl-3 pr-2 rounded-2xl border border-slate-800">
-                <div class="flex items-center gap-2">
+            <!-- Group & User Management Controls -->
+            <div class="flex items-center gap-3">
+                <!-- Group Switcher -->
+                <div class="flex items-center gap-2 bg-slate-900/80 p-1.5 px-3 rounded-2xl border border-slate-800">
+                    <i class="fa-solid fa-layer-group text-amber-400 text-xs"></i>
+                    <span class="text-xs text-slate-400 font-medium hidden sm:inline">Gruppe:</span>
+                    <span id="currentGroupDisplay" class="text-sm font-bold text-rose-400">Hauptraum</span>
+                    <button onclick="openGroupModal()" class="ml-1 text-xs text-slate-400 hover:text-white" title="Gruppe wechseln / erstellen">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                </div>
+
+                <!-- Active User Selector -->
+                <div class="flex items-center gap-2 bg-slate-900/80 p-1.5 pl-3 pr-2 rounded-2xl border border-slate-800">
                     <i class="fa-solid fa-user-ninja text-rose-400"></i>
                     <span class="text-xs text-slate-400 font-medium hidden sm:inline">Ich bin:</span>
+                    <select id="activeUserSelect" onchange="switchActiveUser(this.value)" class="bg-slate-800 text-slate-200 text-sm font-semibold rounded-xl px-3 py-1.5 border border-slate-700 focus:outline-none focus:border-rose-500 cursor-pointer">
+                    </select>
+                    <button onclick="openUserModal()" class="w-8 h-8 rounded-xl bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 flex items-center justify-center transition" title="Neuen Teilnehmer registrieren">
+                        <i class="fa-solid fa-user-plus text-xs"></i>
+                    </button>
                 </div>
-                <select id="activeUserSelect" onchange="switchActiveUser(this.value)" class="bg-slate-800 text-slate-200 text-sm font-semibold rounded-xl px-3 py-1.5 border border-slate-700 focus:outline-none focus:border-rose-500 cursor-pointer">
-                    <!-- Options populated via JS -->
-                </select>
-                <button onclick="openUserModal()" class="w-8 h-8 rounded-xl bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 flex items-center justify-center transition" title="Neuen Teilnehmer registrieren">
-                    <i class="fa-solid fa-user-plus text-xs"></i>
-                </button>
             </div>
         </div>
     </header>
@@ -109,8 +118,31 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- LEFT COLUMN: Synchronized Timer Control & Group Rankings -->
+        <!-- LEFT COLUMN: Timer & Group Info -->
         <div class="lg:col-span-4 flex flex-col gap-6">
+
+            <!-- Main Goal Status Card -->
+            <div class="glass-panel rounded-3xl p-6 relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900/90 to-rose-950/30">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-bullseye"></i> Haupt-Ziel der Gruppe
+                    </span>
+                    <button onclick="openEditMainGoalModal()" class="text-xs text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                </div>
+                <h2 id="mainGoalTitleDisplay" class="text-xl font-black text-white mb-2">Einfach zusammen durchhalten!</h2>
+                
+                <div class="mt-4">
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span class="text-slate-400">Team Gesamterfüllung</span>
+                        <span id="mainGoalPercentText" class="text-emerald-400 font-black">0%</span>
+                    </div>
+                    <div class="w-full h-4 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                        <div id="mainGoalProgressBar" class="h-full bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Countdown Timer Card -->
             <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
@@ -122,7 +154,6 @@
                     <i class="fa-regular fa-clock text-rose-500"></i> Live Challenge Timer
                 </h2>
 
-                <!-- Big Digital Display -->
                 <div class="my-4 text-center">
                     <div id="timerDisplay" class="font-black text-5xl tracking-widest text-slate-100 font-mono drop-shadow-md">
                         00:00:00
@@ -130,7 +161,6 @@
                     <p id="timerSubtext" class="text-xs text-slate-400 mt-2">Bereit zum Starten</p>
                 </div>
 
-                <!-- Synchronized Timer Controls -->
                 <div class="flex items-center justify-center gap-2 mb-4">
                     <button id="btnStartTimer" onclick="startTimer()" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold text-white shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition active:scale-95">
                         <i class="fa-solid fa-play text-xs"></i> Start
@@ -143,7 +173,6 @@
                     </button>
                 </div>
 
-                <!-- Timer Setup Form (Disabled while running) -->
                 <div id="timerSetupBox" class="border-t border-slate-800 pt-4 mt-4">
                     <label class="block text-xs font-semibold text-slate-400 mb-2">Timer Dauer (Live für alle):</label>
                     <div class="grid grid-cols-3 gap-2">
@@ -161,21 +190,13 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Lock Status Information Box -->
-                <div class="mt-4 p-3 rounded-2xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 flex items-start gap-2.5">
-                    <i class="fa-solid fa-wifi text-rose-400 mt-0.5"></i>
-                    <p id="lockInfoText">
-                        Sobald der Timer <strong>läuft</strong>, wird das Setup auf <strong>allen Geräten gleichzeitig</strong> gesperrt und Punkte können live getrackt werden!
-                    </p>
-                </div>
             </div>
 
             <!-- Group Members Card -->
             <div class="glass-panel rounded-3xl p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-users text-rose-500"></i> Gruppe (<span id="userCount">0</span>)
+                        <i class="fa-solid fa-users text-rose-500"></i> Team-Mitglieder (<span id="userCount">0</span>)
                     </h2>
                     <button onclick="openUserModal()" class="text-xs bg-rose-600/20 text-rose-300 hover:bg-rose-600/30 px-2.5 py-1 rounded-xl transition flex items-center gap-1 font-semibold">
                         <i class="fa-solid fa-plus text-[10px]"></i> Beitritt
@@ -183,50 +204,76 @@
                 </div>
 
                 <div id="usersList" class="space-y-2.5 max-h-[240px] overflow-y-auto pr-1">
-                    <!-- Dynamic Member Rows -->
-                </div>
-            </div>
-
-            <!-- Overall Leaderboard -->
-            <div class="glass-panel rounded-3xl p-6">
-                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-ranking-star text-amber-400"></i> Live Gesamtwertung
-                </h2>
-
-                <div id="overallLeaderboard" class="space-y-2">
-                    <!-- Dynamic Leaderboard list -->
                 </div>
             </div>
 
         </div>
 
-        <!-- RIGHT COLUMN: Live Challenges & Actions -->
+        <!-- RIGHT COLUMN: Active Challenges & Voting System -->
         <div class="lg:col-span-8 flex flex-col gap-6">
 
             <!-- Banner / Action Header -->
             <div class="glass-panel rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl font-extrabold text-white">Live Challenge Room</h2>
-                    <p class="text-sm text-slate-400">Gemeinsam Ziele erreichen & Stand auf allen Screens sehen!</p>
+                    <h2 class="text-2xl font-extrabold text-white">Gemeinsame Aufgaben</h2>
+                    <p class="text-sm text-slate-400">Tragt zusammen Ergebnisse ein, um die Challenge zu rocken!</p>
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto">
                     <button id="btnCreateChallenge" onclick="openChallengeModal()" class="w-full sm:w-auto py-3 px-5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-bold shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 transition active:scale-95">
-                        <i class="fa-solid fa-plus"></i> Challenge Hinzufügen
-                    </button>
-                    <button onclick="resetAllDataConfirm()" title="Komplette Session zurücksetzen" class="py-3 px-3 rounded-2xl bg-slate-800 hover:bg-rose-950 hover:text-rose-400 text-slate-400 font-semibold transition" title="Session Reset">
-                        <i class="fa-solid fa-rotate-right"></i>
+                        <i class="fa-solid fa-plus"></i> Neue Aufgabe
                     </button>
                 </div>
             </div>
 
-            <!-- Challenge Cards Container -->
-            <div id="challengesContainer" class="space-y-6">
-                <!-- Dynamic Live Challenge Cards -->
+            <!-- Active Group Sub-Challenges -->
+            <div id="challengesContainer" class="space-y-4">
+            </div>
+
+            <!-- VOTING SECTION: Proposed Challenges -->
+            <div class="glass-panel rounded-3xl p-6 mt-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-check-to-slot text-amber-400"></i> Voting: Challenge-Ideen
+                        </h3>
+                        <p class="text-xs text-slate-400">Stimmt für Vorschläge ab, die zur Haupt-Challenge hinzugefügt werden sollen.</p>
+                    </div>
+                    <button onclick="openVoteProposalModal()" class="py-2 px-3 bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold rounded-xl text-xs hover:bg-amber-500/30 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i> Idee Einreichen
+                    </button>
+                </div>
+
+                <div id="proposalsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                </div>
             </div>
 
         </div>
 
     </main>
+
+    <!-- MODAL: Switch / Join Group -->
+    <div id="groupModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-panel rounded-3xl w-full max-w-md p-6 relative border border-slate-700 shadow-2xl">
+            <button onclick="closeGroupModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-amber-400"></i> Gruppe Wechseln / Erstellen
+            </h3>
+            <p class="text-xs text-slate-400 mb-5">Gib einen Gruppennamen ein, um einen eigenen Raum mit Freunden zu öffnen.</p>
+
+            <form onsubmit="handleSwitchGroup(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Gruppen-Name / Raum-Code</label>
+                    <input type="text" id="groupNameInput" required placeholder="z.B. WG-Party, Sommerfest-2026" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-rose-500">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeGroupModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Abbrechen</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-600/30 transition">Raum Betreten</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- MODAL: Participant Creation -->
     <div id="userModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
@@ -237,7 +284,7 @@
             <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-user-plus text-rose-500"></i> In Gruppe eintragen
             </h3>
-            <p class="text-xs text-slate-400 mb-5">Gib deinen Namen an, damit du Punkte eintragen kannst.</p>
+            <p class="text-xs text-slate-400 mb-5">Gib deinen Namen an, um am Team-Erfolg mitzuwirken.</p>
 
             <form onsubmit="handleAddUser(event)" class="space-y-4">
                 <div>
@@ -245,9 +292,8 @@
                     <input type="text" id="newUserName" required placeholder="z.B. Alex, SpeedRunner" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-rose-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Deine Badge-Farbe</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Deine Team-Farbe</label>
                     <div class="flex gap-2" id="colorPickerContainer">
-                        <!-- Populated via JS -->
                     </div>
                 </div>
                 <div class="flex gap-3 pt-2">
@@ -265,19 +311,19 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
-                <i class="fa-solid fa-bullseye text-rose-500"></i> Neue Live Challenge
+                <i class="fa-solid fa-bullseye text-rose-500"></i> Neue Team-Aufgabe
             </h3>
-            <p class="text-xs text-slate-400 mb-5">Erstelle ein Ziel für alle Teilnehmer.</p>
+            <p class="text-xs text-slate-400 mb-5">Erstelle ein gemeinsames Ziel für die Gruppe.</p>
 
             <form onsubmit="handleCreateChallenge(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Titel der Challenge</label>
-                    <input type="text" id="challengeTitle" required placeholder="z.B. 100 km Sommer-Lauf" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-rose-500">
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Titel der Aufgabe</label>
+                    <input type="text" id="challengeTitle" required placeholder="z.B. 100 km Team-Lauf" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-rose-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Zielwert</label>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Zielwert (Team)</label>
                         <input type="number" step="0.1" id="challengeTarget" required placeholder="100" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-rose-500">
                     </div>
                     <div>
@@ -293,15 +339,70 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Kategorie / Icon</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Icon</label>
                     <div class="grid grid-cols-5 gap-2" id="iconPickerContainer">
-                        <!-- Dynamic Icon Selection -->
                     </div>
                 </div>
 
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="closeChallengeModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Abbrechen</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-600/30 transition">Challenge Veröffentlichen</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-600/30 transition">Aktivieren</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Propose Idea for Voting -->
+    <div id="proposalModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-panel rounded-3xl w-full max-w-md p-6 relative border border-slate-700 shadow-2xl">
+            <button onclick="closeVoteProposalModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-lightbulb text-amber-400"></i> Challenge-Idee Vorschlagen
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Schlage eine Aufgabe vor, über die die Gruppe abstimmen kann.</p>
+
+            <form onsubmit="handleCreateProposal(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Titel</label>
+                    <input type="text" id="propTitle" required placeholder="z.B. 500 Klimmzüge zusammen" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Zielwert</label>
+                        <input type="number" step="0.1" id="propTarget" required placeholder="500" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Einheit</label>
+                        <input type="text" id="propUnit" required placeholder="Wh" value="Wh" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeVoteProposalModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Abbrechen</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-lg shadow-amber-500/20 transition">Einreichen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Edit Main Goal -->
+    <div id="mainGoalModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-panel rounded-3xl w-full max-w-md p-6 relative border border-slate-700 shadow-2xl">
+            <button onclick="closeEditMainGoalModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-1">Haupt-Ziel Anpassen</h3>
+            <p class="text-xs text-slate-400 mb-4">Setze das übergeordnete Motto für eure Gruppe.</p>
+
+            <form onsubmit="handleSaveMainGoal(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Haupt-Ziel Titel</label>
+                    <input type="text" id="mainGoalInput" required placeholder="z.B. Sommer-Workout Marathon 2026" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-rose-500">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeEditMainGoalModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Abbrechen</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold transition">Speichern</button>
                 </div>
             </form>
         </div>
@@ -314,9 +415,9 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <h3 id="progressModalTitle" class="text-lg font-bold text-white mb-1 flex items-center gap-2">
-                <i class="fa-solid fa-plus-circle text-emerald-400"></i> Fortschritt eintragen
+                <i class="fa-solid fa-plus-circle text-emerald-400"></i> Fortschritt Eintragen
             </h3>
-            <p id="progressModalSub" class="text-xs text-slate-400 mb-4">Wird live für alle eingetragen.</p>
+            <p id="progressModalSub" class="text-xs text-slate-400 mb-4">Wird dem Gruppenkonto gutgeschrieben.</p>
 
             <form onsubmit="handleAddProgress(event)" class="space-y-4">
                 <input type="hidden" id="progressChallengeId">
@@ -327,21 +428,15 @@
                     <input type="number" step="0.01" id="progressValue" required placeholder="z.B. 5.5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-emerald-500">
                 </div>
 
-                <!-- Quick Increment Buttons -->
                 <div class="flex gap-2">
                     <button type="button" onclick="addQuickValue(1)" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-bold border border-slate-700">+1</button>
                     <button type="button" onclick="addQuickValue(5)" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-bold border border-slate-700">+5</button>
                     <button type="button" onclick="addQuickValue(10)" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-bold border border-slate-700">+10</button>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Notiz / Aktivität (Optional)</label>
-                    <input type="text" id="progressNote" placeholder="z.B. Abendlauf im Park" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                </div>
-
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="closeProgressModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Abbrechen</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-600/30 transition">Live Buchen</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-600/30 transition">Eintragen</button>
                 </div>
             </form>
         </div>
@@ -353,12 +448,10 @@
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Configuration setup
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'real-life-winchallenge-default';
         const firebaseConfig = typeof __firebase_config !== 'undefined' 
             ? JSON.parse(__firebase_config) 
             : {
-                // Fallback config if environment not provided
                 apiKey: "AIzaSyBU-O9R0spj46r8CgvYvro6UzxG5ifYYMQ",
                 authDomain: "winchallenge-228ae.firebaseapp.com",
                 projectId: "winchallenge-228ae",
@@ -371,26 +464,26 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Firestore document path rule for shared session data
-        const sharedStateDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'roomState', 'mainSession');
+        window.currentGroupId = localStorage.getItem('winchallenge_group_id') || 'Hauptraum';
+        
+        function getDocRef() {
+            const cleanGroupId = window.currentGroupId.replace(/[^a-zA-Z0-9_-]/g, '_');
+            return doc(db, 'artifacts', appId, 'public', 'data', 'roomState', cleanGroupId);
+        }
 
-        // Local state replica
+        let unsubscribeSnapshot = null;
+
         window.appData = {
+            mainGoalTitle: 'Einfach zusammen durchhalten!',
             users: [],
             challenges: [],
-            timer: {
-                totalSeconds: 1800,
-                status: 'STOPPED', // 'RUNNING', 'PAUSED', 'STOPPED', 'FINISHED'
-                endTimestamp: null,
-                remainingSeconds: 1800
-            }
+            proposals: [],
+            timer: { totalSeconds: 1800, status: 'STOPPED', endTimestamp: null, remainingSeconds: 1800 }
         };
 
         window.currentUserId = localStorage.getItem('winchallenge_my_user_id') || null;
         window.timerInterval = null;
-        window.hasCelebrated = false;
 
-        // Initialize Firebase Authentication
         async function initAuth() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -399,29 +492,32 @@
                     await signInAnonymously(auth);
                 }
                 updateSyncStatus(true, "Live verbunden");
-                listenToRealtimeState();
+                listenToGroupState();
             } catch (err) {
                 console.error("Firebase Auth Fehler:", err);
                 updateSyncStatus(false, "Verbindungsfehler");
             }
         }
 
-        // Listen for Realtime Changes across all clients
-        function listenToRealtimeState() {
-            onSnapshot(sharedStateDocRef, (docSnap) => {
+        window.listenToGroupState = function() {
+            if (unsubscribeSnapshot) unsubscribeSnapshot();
+
+            document.getElementById('currentGroupDisplay').textContent = window.currentGroupId;
+
+            unsubscribeSnapshot = onSnapshot(getDocRef(), (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     window.appData = {
+                        mainGoalTitle: data.mainGoalTitle || 'Einfach zusammen durchhalten!',
                         users: data.users || [],
                         challenges: data.challenges || [],
+                        proposals: data.proposals || [],
                         timer: data.timer || { totalSeconds: 1800, status: 'STOPPED', endTimestamp: null, remainingSeconds: 1800 }
                     };
                 } else {
-                    // Seed initial state if doc does not exist
-                    seedInitialDocument();
+                    seedInitialGroupDocument();
                 }
-                
-                // Keep local active user valid
+
                 if (!window.currentUserId && window.appData.users.length > 0) {
                     window.currentUserId = window.appData.users[0].id;
                     localStorage.setItem('winchallenge_my_user_id', window.currentUserId);
@@ -431,58 +527,40 @@
                 window.renderAll();
             }, (error) => {
                 console.error("Firestore Error:", error);
-                updateSyncStatus(false, "Sync abgebrochen");
+                updateSyncStatus(false, "Sync Fehler");
             });
-        }
+        };
 
-        // Write State Changes to Firestore
         window.pushStateToFirestore = async function() {
             if (!auth.currentUser) return;
             try {
-                await setDoc(sharedStateDocRef, window.appData, { merge: true });
+                await setDoc(getDocRef(), window.appData, { merge: true });
             } catch (err) {
-                console.error("Fehler beim Speichern in Firestore:", err);
+                console.error("Fehler beim Speichern:", err);
             }
         };
 
-        async function seedInitialDocument() {
+        async function seedInitialGroupDocument() {
             window.appData = {
+                mainGoalTitle: 'Einfach zusammen durchhalten!',
                 users: [
                     { id: 'u1', name: 'Max Power', color: '#f43f5e' },
-                    { id: 'u2', name: 'Laura Fit', color: '#3b82f6' },
-                    { id: 'u3', name: 'Chris Cross', color: '#10b981' }
+                    { id: 'u2', name: 'Laura Fit', color: '#3b82f6' }
                 ],
                 challenges: [
                     {
                         id: 'c1',
-                        title: '100 km Community Run',
+                        title: '100 km Team Run',
                         target: 100,
                         unit: 'km',
                         icon: 'fa-person-running',
-                        entries: [
-                            { userId: 'u1', value: 25.5, note: 'Morgenlauf', date: new Date().toISOString() },
-                            { userId: 'u2', value: 32.0, note: 'Intervalle', date: new Date().toISOString() },
-                            { userId: 'u3', value: 18.2, note: 'Trailrun', date: new Date().toISOString() }
-                        ]
-                    },
-                    {
-                        id: 'c2',
-                        title: '500 Liegestütze Challenge',
-                        target: 500,
-                        unit: 'Wh',
-                        icon: 'fa-dumbbell',
-                        entries: [
-                            { userId: 'u1', value: 150, note: 'Set 1', date: new Date().toISOString() },
-                            { userId: 'u2', value: 200, note: 'Daily 50s', date: new Date().toISOString() }
-                        ]
+                        entries: [{ userId: 'u1', value: 25.5, date: new Date().toISOString() }]
                     }
                 ],
-                timer: {
-                    totalSeconds: 3600,
-                    remainingSeconds: 3600,
-                    status: 'STOPPED',
-                    endTimestamp: null
-                }
+                proposals: [
+                    { id: 'p1', title: '500 Liegestütze zusammen', target: 500, unit: 'Wh', votes: ['u1'] }
+                ],
+                timer: { totalSeconds: 3600, remainingSeconds: 3600, status: 'STOPPED', endTimestamp: null }
             };
             window.pushStateToFirestore();
         }
@@ -498,7 +576,6 @@
             txt.textContent = text;
         }
 
-        // Realtime Timer Sync Handler
         function syncTimerWithServerTime() {
             if (window.timerInterval) clearInterval(window.timerInterval);
 
@@ -516,19 +593,12 @@
                         clearInterval(window.timerInterval);
                         window.appData.timer.status = 'FINISHED';
                         window.updateLockStatusUI();
-                        
-                        if (!window.hasCelebrated) {
-                            window.hasCelebrated = true;
-                            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-                        }
+                        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
                     }
                 }, 1000);
-            } else {
-                window.hasCelebrated = false;
             }
         }
 
-        // Start initialization
         initAuth();
     </script>
 
@@ -537,30 +607,43 @@
         let selectedColor = '#f43f5e';
         let selectedIcon = 'fa-person-running';
 
-        const AVATAR_COLORS = [
-            '#f43f5e', '#3b82f6', '#10b981', '#f59e0b', 
-            '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
-        ];
-
-        const CATEGORY_ICONS = [
-            'fa-person-running', 'fa-dumbbell', 'fa-bicycle', 
-            'fa-person-swimming', 'fa-person-hiking', 'fa-fire', 
-            'fa-trophy', 'fa-bullseye', 'fa-heart-pulse', 'fa-brain'
-        ];
+        const AVATAR_COLORS = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+        const CATEGORY_ICONS = ['fa-person-running', 'fa-dumbbell', 'fa-bicycle', 'fa-person-swimming', 'fa-trophy', 'fa-bullseye'];
 
         window.onload = function () {
             initModalOptions();
         };
 
-        // --- RENDER ALL UI SECTIONS ---
         window.renderAll = function() {
+            document.getElementById('mainGoalTitleDisplay').textContent = window.appData.mainGoalTitle || 'Einfach zusammen durchhalten!';
             renderActiveUserDropdown();
             renderUsersList();
             renderChallenges();
-            renderOverallLeaderboard();
+            renderProposals();
+            calculateOverallGoalProgress();
             window.updateTimerDisplay();
             window.updateLockStatusUI();
         };
+
+        function calculateOverallGoalProgress() {
+            const challenges = window.appData.challenges || [];
+            if (challenges.length === 0) {
+                document.getElementById('mainGoalPercentText').textContent = '0%';
+                document.getElementById('mainGoalProgressBar').style.width = '0%';
+                return;
+            }
+
+            let totalPercentSum = 0;
+            challenges.forEach(ch => {
+                const totalVal = (ch.entries || []).reduce((s, e) => s + Number(e.value), 0);
+                const percent = Math.min(100, (totalVal / ch.target) * 100);
+                totalPercentSum += percent;
+            });
+
+            const overallPercent = Math.round(totalPercentSum / challenges.length);
+            document.getElementById('mainGoalPercentText').textContent = overallPercent + '%';
+            document.getElementById('mainGoalProgressBar').style.width = overallPercent + '%';
+        }
 
         function renderActiveUserDropdown() {
             const select = document.getElementById('activeUserSelect');
@@ -592,13 +675,11 @@
                 return;
             }
 
-            const isLocked = window.appData.timer && window.appData.timer.status === 'RUNNING';
-
             users.forEach(user => {
                 const isActive = user.id === window.currentUserId;
                 const card = document.createElement('div');
                 card.className = `flex items-center justify-between p-2.5 rounded-2xl border transition ${
-                    isActive ? 'bg-slate-800/90 border-rose-500/50 shadow-md' : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'
+                    isActive ? 'bg-slate-800/90 border-rose-500/50 shadow-md' : 'bg-slate-900/40 border-slate-800'
                 }`;
 
                 card.innerHTML = `
@@ -609,14 +690,9 @@
                         <span class="text-sm font-semibold text-slate-200">${user.name}</span>
                         ${isActive ? '<span class="text-[10px] bg-rose-500/20 text-rose-300 font-bold px-2 py-0.5 rounded-full">Du</span>' : ''}
                     </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="switchActiveUser('${user.id}')" title="Als mich wählen" class="p-1.5 text-xs text-slate-400 hover:text-white transition">
-                            <i class="fa-solid fa-circle-check ${isActive ? 'text-rose-500' : 'text-slate-600'}"></i>
-                        </button>
-                        <button onclick="deleteUser('${user.id}')" title="Entfernen" ${isLocked ? 'disabled' : ''} class="p-1.5 text-xs text-slate-500 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed transition">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
+                    <button onclick="switchActiveUser('${user.id}')" class="p-1.5 text-xs text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-circle-check ${isActive ? 'text-rose-500' : 'text-slate-600'}"></i>
+                    </button>
                 `;
                 container.appendChild(card);
             });
@@ -631,93 +707,55 @@
                 container.innerHTML = `
                     <div class="glass-panel rounded-3xl p-8 text-center border-dashed border-slate-800">
                         <i class="fa-solid fa-flag-checkered text-4xl text-slate-600 mb-3 block"></i>
-                        <h3 class="text-lg font-bold text-slate-300">Keine aktiven Live-Challenges</h3>
-                        <p class="text-xs text-slate-500 mt-1 mb-4">Erstelle deine erste Challenge um den Wettkampf zu starten.</p>
-                        <button onclick="openChallengeModal()" class="py-2.5 px-4 bg-rose-600 text-white font-bold rounded-xl text-xs hover:bg-rose-500 shadow-lg shadow-rose-600/20">
-                            + Challenge Anlegen
-                        </button>
+                        <h3 class="text-lg font-bold text-slate-300">Keine aktiven Team-Aufgaben</h3>
+                        <p class="text-xs text-slate-500 mt-1 mb-4">Füge eine Aufgabe hinzu oder stimme über Ideen ab!</p>
                     </div>
                 `;
                 return;
             }
 
             const isLocked = window.appData.timer && window.appData.timer.status === 'RUNNING';
-            const isFinished = window.appData.timer && window.appData.timer.status === 'FINISHED';
 
             challenges.forEach(ch => {
                 const totalProgress = (ch.entries || []).reduce((sum, e) => sum + Number(e.value), 0);
                 const percent = Math.min(100, Math.round((totalProgress / ch.target) * 100));
 
-                // Member rankings for this challenge
-                const userTotals = {};
-                (ch.entries || []).forEach(e => {
-                    userTotals[e.userId] = (userTotals[e.userId] || 0) + Number(e.value);
-                });
-
-                const sortedContributors = (window.appData.users || []).map(u => ({
-                    ...u,
-                    score: userTotals[u.id] || 0
-                })).sort((a, b) => b.score - a.score);
-
                 const card = document.createElement('div');
-                card.className = "glass-panel-interactive rounded-3xl p-6 relative overflow-hidden";
+                card.className = "glass-panel rounded-3xl p-5 relative overflow-hidden";
 
                 card.innerHTML = `
-                    <div class="flex items-start justify-between gap-4 mb-4">
+                    <div class="flex items-start justify-between gap-4 mb-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-2xl bg-rose-600/10 border border-rose-500/20 text-rose-500 flex items-center justify-center text-xl shadow-inner">
+                            <div class="w-10 h-10 rounded-2xl bg-rose-600/10 border border-rose-500/20 text-rose-500 flex items-center justify-center text-lg">
                                 <i class="fa-solid ${ch.icon || 'fa-trophy'}"></i>
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <h3 class="text-base font-bold text-white flex items-center gap-2">
                                     ${ch.title}
-                                    ${percent >= 100 ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-check"></i> Erreicht!</span>' : ''}
+                                    ${percent >= 100 ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full">Erreicht!</span>' : ''}
                                 </h3>
-                                <p class="text-xs text-slate-400 font-medium">
-                                    Ziel: <span class="text-slate-200 font-bold">${ch.target} ${ch.unit}</span>
-                                </p>
+                                <p class="text-xs text-slate-400">Gemeinsames Ziel: <span class="text-slate-200 font-bold">${ch.target} ${ch.unit}</span></p>
                             </div>
                         </div>
 
                         <div class="flex items-center gap-2">
                             <button onclick="openProgressModal('${ch.id}')" ${!isLocked ? 'disabled' : ''} 
-                                class="py-2 px-3.5 rounded-xl ${isLocked ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 cursor-pointer' : 'bg-slate-800 text-slate-500 cursor-not-allowed'} font-bold text-xs flex items-center gap-1.5 transition">
-                                <i class="fa-solid fa-plus"></i> Buchen
+                                class="py-2 px-3.5 rounded-xl ${isLocked ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20' : 'bg-slate-800 text-slate-500 cursor-not-allowed'} font-bold text-xs transition">
+                                <i class="fa-solid fa-plus"></i> Eintragen
                             </button>
-                            <button onclick="deleteChallenge('${ch.id}')" ${isLocked ? 'disabled' : ''} title="Löschen" class="w-8 h-8 rounded-xl bg-slate-800/80 hover:bg-rose-600/20 text-slate-400 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition">
+                            <button onclick="deleteChallenge('${ch.id}')" ${isLocked ? 'disabled' : ''} class="p-2 text-slate-500 hover:text-rose-400 disabled:opacity-30">
                                 <i class="fa-solid fa-trash text-xs"></i>
                             </button>
                         </div>
                     </div>
 
-                    <div class="mb-5">
-                        <div class="flex justify-between text-xs font-bold mb-1.5">
-                            <span class="text-slate-400">Gesamt-Fortschritt</span>
+                    <div>
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-slate-400">Team Fortschritt</span>
                             <span class="text-rose-400">${totalProgress.toFixed(1)} / ${ch.target} ${ch.unit} (${percent}%)</span>
                         </div>
-                        <div class="w-full h-3.5 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
-                            <div class="h-full bg-gradient-to-r from-rose-600 via-amber-500 to-emerald-400 rounded-full transition-all duration-500 shadow-md" style="width: ${percent}%"></div>
-                        </div>
-                    </div>
-
-                    <div class="border-t border-slate-800/80 pt-4 mt-4">
-                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center justify-between">
-                            <span><i class="fa-solid fa-medal text-amber-400 mr-1"></i> Live Ranking</span>
-                        </h4>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            ${sortedContributors.map((u, idx) => `
-                                <div class="bg-slate-900/60 rounded-2xl p-2.5 border border-slate-800/60 flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs font-black ${idx === 0 ? 'text-amber-400' : 'text-slate-500'}">#${idx + 1}</span>
-                                        <div class="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] text-white font-bold" style="background-color: ${u.color}">
-                                            ${u.name.substring(0,2).toUpperCase()}
-                                        </div>
-                                        <span class="text-xs font-semibold text-slate-300 truncate max-w-[80px]">${u.name}</span>
-                                    </div>
-                                    <span class="text-xs font-bold text-white">${u.score.toFixed(1)} <span class="text-[10px] text-slate-500 font-normal">${ch.unit}</span></span>
-                                </div>
-                            `).join('')}
+                        <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                            <div class="h-full bg-gradient-to-r from-rose-600 to-emerald-400 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
                         </div>
                     </div>
                 `;
@@ -726,55 +764,85 @@
             });
         }
 
-        function renderOverallLeaderboard() {
-            const container = document.getElementById('overallLeaderboard');
+        function renderProposals() {
+            const container = document.getElementById('proposalsContainer');
             container.innerHTML = '';
-            const users = window.appData.users || [];
+            const proposals = window.appData.proposals || [];
 
-            if (users.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 italic py-2">Keine Teilnehmer.</p>`;
+            if (proposals.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 italic col-span-2 text-center py-2">Keine offenen Vorschläge. Reiche eine Idee ein!</p>`;
                 return;
             }
 
-            const scores = {};
-            users.forEach(u => scores[u.id] = 0);
+            proposals.forEach(prop => {
+                const votes = prop.votes || [];
+                const hasVoted = votes.includes(window.currentUserId);
 
-            (window.appData.challenges || []).forEach(ch => {
-                (ch.entries || []).forEach(e => {
-                    if (scores[e.userId] !== undefined) {
-                        scores[e.userId] += Number(e.value);
-                    }
-                });
-            });
+                const card = document.createElement('div');
+                card.className = "p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-3";
 
-            const sorted = users.map(u => ({
-                ...u,
-                total: scores[u.id] || 0
-            })).sort((a, b) => b.total - a.total);
-
-            sorted.forEach((u, index) => {
-                let badgeClass = "text-slate-500";
-                if (index === 0) badgeClass = "text-amber-400 text-sm";
-                if (index === 1) badgeClass = "text-slate-300";
-                if (index === 2) badgeClass = "text-amber-700";
-
-                const row = document.createElement('div');
-                row.className = "flex items-center justify-between p-2 rounded-xl bg-slate-900/50 border border-slate-800/80";
-                row.innerHTML = `
-                    <div class="flex items-center gap-2.5">
-                        <span class="font-black w-4 text-center ${badgeClass}">${index + 1}</span>
-                        <div class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs text-white" style="background-color: ${u.color}">
-                            ${u.name.substring(0, 2).toUpperCase()}
-                        </div>
-                        <span class="text-xs font-semibold text-slate-200">${u.name}</span>
+                card.innerHTML = `
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-200">${prop.title}</h4>
+                        <p class="text-[10px] text-slate-400">Ziel: ${prop.target} ${prop.unit}</p>
                     </div>
-                    <span class="text-xs font-bold text-slate-100">${u.total.toFixed(1)} <span class="text-[10px] text-slate-500 font-normal">Pkt</span></span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleVoteProposal('${prop.id}')" class="py-1 px-2.5 rounded-xl border text-xs font-bold transition flex items-center gap-1 ${
+                            hasVoted ? 'bg-amber-500/20 border-amber-500/50 text-amber-300' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
+                        }">
+                            👍 ${votes.length}
+                        </button>
+                        <button onclick="approveProposalToChallenge('${prop.id}')" title="Als aktive Challenge übernehmen" class="p-1.5 text-xs text-emerald-400 hover:bg-emerald-500/20 rounded-lg">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                    </div>
                 `;
-                container.appendChild(row);
+                container.appendChild(card);
             });
         }
 
-        // --- TIMER & LOCK SYNC CONTROL ---
+        window.toggleVoteProposal = function(propId) {
+            if (!window.currentUserId) return alert('Trage dich zuerst in der Gruppe ein!');
+            const prop = (window.appData.proposals || []).find(p => p.id === propId);
+            if (!prop) return;
+
+            prop.votes = prop.votes || [];
+            const idx = prop.votes.indexOf(window.currentUserId);
+            if (idx >= 0) prop.votes.splice(idx, 1);
+            else prop.votes.push(window.currentUserId);
+
+            window.pushStateToFirestore();
+        };
+
+        window.approveProposalToChallenge = function(propId) {
+            const prop = (window.appData.proposals || []).find(p => p.id === propId);
+            if (!prop) return;
+
+            window.appData.challenges = window.appData.challenges || [];
+            window.appData.challenges.push({
+                id: 'c_' + Date.now(),
+                title: prop.title,
+                target: prop.target,
+                unit: prop.unit,
+                icon: 'fa-bullseye',
+                entries: []
+            });
+
+            window.appData.proposals = window.appData.proposals.filter(p => p.id !== propId);
+            window.pushStateToFirestore();
+        };
+
+        window.handleSwitchGroup = function(e) {
+            e.preventDefault();
+            const input = document.getElementById('groupNameInput').value.trim();
+            if (!input) return;
+
+            window.currentGroupId = input;
+            localStorage.setItem('winchallenge_group_id', input);
+            closeGroupModal();
+            window.listenToGroupState();
+        };
+
         window.startTimer = function() {
             const timer = window.appData.timer || {};
             if (timer.status === 'STOPPED' || timer.status === 'FINISHED') {
@@ -783,18 +851,13 @@
                 const s = parseInt(document.getElementById('inputSeconds').value) || 0;
                 const total = (h * 3600) + (m * 60) + s;
 
-                if (total <= 0) {
-                    alert('Bitte stelle eine gültige Dauer für den Timer ein!');
-                    return;
-                }
+                if (total <= 0) return alert('Bitte gueltige Zeit einstellen!');
                 timer.totalSeconds = total;
                 timer.remainingSeconds = total;
             }
 
-            const now = Date.now();
-            timer.endTimestamp = now + (timer.remainingSeconds * 1000);
+            timer.endTimestamp = Date.now() + (timer.remainingSeconds * 1000);
             timer.status = 'RUNNING';
-
             window.appData.timer = timer;
             window.pushStateToFirestore();
         };
@@ -802,13 +865,10 @@
         window.pauseTimer = function() {
             const timer = window.appData.timer;
             if (timer.status === 'RUNNING' && timer.endTimestamp) {
-                const remaining = Math.max(0, Math.ceil((timer.endTimestamp - Date.now()) / 1000));
-                timer.remainingSeconds = remaining;
+                timer.remainingSeconds = Math.max(0, Math.ceil((timer.endTimestamp - Date.now()) / 1000));
             }
             timer.status = 'PAUSED';
             timer.endTimestamp = null;
-
-            window.appData.timer = timer;
             window.pushStateToFirestore();
         };
 
@@ -848,7 +908,6 @@
             const btnStart = document.getElementById('btnStartTimer');
             const btnPause = document.getElementById('btnPauseTimer');
             const btnCreate = document.getElementById('btnCreateChallenge');
-            const inputs = document.querySelectorAll('#timerSetupBox input');
 
             if (isRunning) {
                 badge.className = "absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 animate-pulse";
@@ -863,8 +922,6 @@
 
                 btnCreate.disabled = true;
                 btnCreate.classList.add('opacity-50', 'cursor-not-allowed');
-
-                inputs.forEach(i => i.disabled = true);
             } else {
                 badge.className = "absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 bg-slate-800 text-slate-400 border border-slate-700";
                 badge.innerHTML = `<i class="fa-solid fa-lock-open text-emerald-400"></i> Edit Mode`;
@@ -877,12 +934,9 @@
 
                 btnCreate.disabled = false;
                 btnCreate.classList.remove('opacity-50', 'cursor-not-allowed');
-
-                inputs.forEach(i => i.disabled = false);
             }
         };
 
-        // --- USER ACTIONS ---
         window.switchActiveUser = function(id) {
             window.currentUserId = id;
             localStorage.setItem('winchallenge_my_user_id', id);
@@ -894,12 +948,7 @@
             const name = document.getElementById('newUserName').value.trim();
             if (!name) return;
 
-            const newUser = {
-                id: 'u_' + Date.now(),
-                name: name,
-                color: selectedColor
-            };
-
+            const newUser = { id: 'u_' + Date.now(), name: name, color: selectedColor };
             window.appData.users = window.appData.users || [];
             window.appData.users.push(newUser);
             window.currentUserId = newUser.id;
@@ -907,125 +956,101 @@
 
             window.pushStateToFirestore();
             closeUserModal();
-            document.getElementById('newUserName').value = '';
         };
 
-        window.deleteUser = function(id) {
-            if (window.appData.timer && window.appData.timer.status === 'RUNNING') {
-                alert('Während die Challenge läuft können keine Teilnehmer gelöscht werden!');
-                return;
-            }
-            window.appData.users = (window.appData.users || []).filter(u => u.id !== id);
-            if (window.currentUserId === id) {
-                window.currentUserId = window.appData.users.length > 0 ? window.appData.users[0].id : null;
-            }
-            window.pushStateToFirestore();
-        };
-
-        // --- CHALLENGE ACTIONS ---
         window.handleCreateChallenge = function(e) {
             e.preventDefault();
-            if (window.appData.timer && window.appData.timer.status === 'RUNNING') {
-                alert('Während die Challenge läuft können keine neuen Aufgaben hinzugefügt werden!');
-                return;
-            }
-
             const title = document.getElementById('challengeTitle').value.trim();
             const target = parseFloat(document.getElementById('challengeTarget').value);
             const unit = document.getElementById('challengeUnit').value;
 
             if (!title || isNaN(target) || target <= 0) return;
 
-            const newChallenge = {
+            window.appData.challenges = window.appData.challenges || [];
+            window.appData.challenges.push({
                 id: 'c_' + Date.now(),
                 title: title,
                 target: target,
                 unit: unit,
                 icon: selectedIcon,
                 entries: []
-            };
-
-            window.appData.challenges = window.appData.challenges || [];
-            window.appData.challenges.push(newChallenge);
+            });
 
             window.pushStateToFirestore();
             closeChallengeModal();
-            document.getElementById('challengeTitle').value = '';
-            document.getElementById('challengeTarget').value = '';
+        };
+
+        window.handleCreateProposal = function(e) {
+            e.preventDefault();
+            const title = document.getElementById('propTitle').value.trim();
+            const target = parseFloat(document.getElementById('propTarget').value);
+            const unit = document.getElementById('propUnit').value.trim();
+
+            if (!title || isNaN(target)) return;
+
+            window.appData.proposals = window.appData.proposals || [];
+            window.appData.proposals.push({
+                id: 'p_' + Date.now(),
+                title: title,
+                target: target,
+                unit: unit,
+                votes: [window.currentUserId].filter(Boolean)
+            });
+
+            window.pushStateToFirestore();
+            closeVoteProposalModal();
+        };
+
+        window.handleSaveMainGoal = function(e) {
+            e.preventDefault();
+            const title = document.getElementById('mainGoalInput').value.trim();
+            if (!title) return;
+
+            window.appData.mainGoalTitle = title;
+            window.pushStateToFirestore();
+            closeEditMainGoalModal();
         };
 
         window.deleteChallenge = function(id) {
-            if (window.appData.timer && window.appData.timer.status === 'RUNNING') {
-                alert('Während die Challenge läuft können keine Aufgaben gelöscht werden!');
-                return;
-            }
             window.appData.challenges = (window.appData.challenges || []).filter(c => c.id !== id);
             window.pushStateToFirestore();
         };
 
-        // --- PROGRESS LOGGING ---
         window.handleAddProgress = function(e) {
             e.preventDefault();
             const chId = document.getElementById('progressChallengeId').value;
             const val = parseFloat(document.getElementById('progressValue').value);
-            const note = document.getElementById('progressNote').value.trim();
 
-            if (!window.currentUserId) {
-                alert('Bitte trage dich zuerst in der Gruppe ein!');
-                return;
-            }
-
+            if (!window.currentUserId) return alert('Trage dich zuerst in der Gruppe ein!');
             if (isNaN(val) || val <= 0) return;
 
             const challenge = (window.appData.challenges || []).find(c => c.id === chId);
             if (challenge) {
                 challenge.entries = challenge.entries || [];
-                challenge.entries.push({
-                    userId: window.currentUserId,
-                    value: val,
-                    note: note,
-                    date: new Date().toISOString()
-                });
-
+                challenge.entries.push({ userId: window.currentUserId, value: val, date: new Date().toISOString() });
                 window.pushStateToFirestore();
                 confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
             }
-
             closeProgressModal();
-            document.getElementById('progressValue').value = '';
-            document.getElementById('progressNote').value = '';
         };
 
         window.addQuickValue = function(v) {
             const inp = document.getElementById('progressValue');
-            const current = parseFloat(inp.value) || 0;
-            inp.value = current + v;
+            inp.value = (parseFloat(inp.value) || 0) + v;
         };
 
-        window.resetAllDataConfirm = function() {
-            if (confirm("Möchtest du die gesamte Live-Session für alle Geräte zurücksetzen?")) {
-                window.appData = {
-                    users: [],
-                    challenges: [],
-                    timer: { totalSeconds: 1800, remainingSeconds: 1800, status: 'STOPPED', endTimestamp: null }
-                };
-                window.pushStateToFirestore();
-            }
-        };
-
-        // --- MODALS & PICKERS ---
         function initModalOptions() {
             const colorContainer = document.getElementById('colorPickerContainer');
             colorContainer.innerHTML = '';
             AVATAR_COLORS.forEach((col, idx) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = `w-7 h-7 rounded-full transition transform hover:scale-110 ${idx === 0 ? 'ring-2 ring-white scale-110' : ''}`;
+                btn.className = `w-7 h-7 rounded-full transition ${idx === 0 ? 'ring-2 ring-white' : ''}`;
                 btn.style.backgroundColor = col;
                 btn.onclick = () => {
                     selectedColor = col;
-                    Array.from(colorContainer.children).forEach(c => c.classList.remove('ring-2', 'ring-white', 'scale-110'));
-                    btn.classList.add('ring-2', 'ring-white', 'scale-110');
+                    Array.from(colorContainer.children).forEach(c => c.classList.remove('ring-2', 'ring-white'));
+                    btn.classList.add('ring-2', 'ring-white');
                 };
                 colorContainer.appendChild(btn);
             });
@@ -1035,45 +1060,36 @@
             CATEGORY_ICONS.forEach((ic, idx) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = `p-2.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 hover:text-white hover:border-rose-500 transition flex items-center justify-center ${idx === 0 ? 'border-rose-500 text-rose-400 bg-rose-500/10' : ''}`;
+                btn.className = `p-2 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 flex items-center justify-center ${idx === 0 ? 'border-rose-500 text-rose-400' : ''}`;
                 btn.innerHTML = `<i class="fa-solid ${ic}"></i>`;
                 btn.onclick = () => {
                     selectedIcon = ic;
-                    Array.from(iconContainer.children).forEach(c => c.className = "p-2.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 hover:text-white hover:border-rose-500 transition flex items-center justify-center");
-                    btn.className = "p-2.5 rounded-xl border border-rose-500 bg-rose-500/10 text-rose-400 transition flex items-center justify-center";
+                    Array.from(iconContainer.children).forEach(c => c.className = "p-2 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 flex items-center justify-center");
+                    btn.className = "p-2 rounded-xl border border-rose-500 text-rose-400 flex items-center justify-center";
                 };
                 iconContainer.appendChild(btn);
             });
         }
 
+        window.openGroupModal = function() { document.getElementById('groupModal').classList.remove('hidden'); };
+        window.closeGroupModal = function() { document.getElementById('groupModal').classList.add('hidden'); };
         window.openUserModal = function() { document.getElementById('userModal').classList.remove('hidden'); };
         window.closeUserModal = function() { document.getElementById('userModal').classList.add('hidden'); };
-
-        window.openChallengeModal = function() {
-            if (window.appData.timer && window.appData.timer.status === 'RUNNING') {
-                alert('Die Challenge läuft aktuell! Währenddessen können keine neuen Challenges angelegt werden.');
-                return;
-            }
-            document.getElementById('challengeModal').classList.remove('hidden');
-        };
+        window.openChallengeModal = function() { document.getElementById('challengeModal').classList.remove('hidden'); };
         window.closeChallengeModal = function() { document.getElementById('challengeModal').classList.add('hidden'); };
+        window.openVoteProposalModal = function() { document.getElementById('proposalModal').classList.remove('hidden'); };
+        window.closeVoteProposalModal = function() { document.getElementById('proposalModal').classList.add('hidden'); };
+        window.openEditMainGoalModal = function() { document.getElementById('mainGoalModal').classList.remove('hidden'); };
+        window.closeEditMainGoalModal = function() { document.getElementById('mainGoalModal').classList.add('hidden'); };
 
         window.openProgressModal = function(chId) {
-            if (!window.appData.timer || window.appData.timer.status !== 'RUNNING') {
-                alert('Fortschritte können nur eingetragen werden, wenn der Live-Timer AKTIV läuft!');
-                return;
-            }
-
+            if (!window.appData.timer || window.appData.timer.status !== 'RUNNING') return alert('Fortschritte können nur bei aktiver Challenge eingetragen werden!');
             const ch = (window.appData.challenges || []).find(c => c.id === chId);
             if (!ch) return;
 
             document.getElementById('progressChallengeId').value = chId;
             document.getElementById('progressUnitLabel').textContent = ch.unit;
             document.getElementById('progressModalTitle').innerHTML = `<i class="fa-solid fa-plus-circle text-emerald-400"></i> ${ch.title}`;
-
-            const activeUser = (window.appData.users || []).find(u => u.id === window.currentUserId);
-            document.getElementById('progressModalSub').textContent = `Buchen als: ${activeUser ? activeUser.name : 'Unbekannt'}`;
-
             document.getElementById('progressModal').classList.remove('hidden');
         };
         window.closeProgressModal = function() { document.getElementById('progressModal').classList.add('hidden'); };
